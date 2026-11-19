@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galileo Sim — laboratori di fisica interattivi</title>
+<meta name="description" content="Simulazioni fisiche 3D da esplorare nel browser, divise per branca della fisica: meccanica, fluidi, onde, ottica. Ogni laboratorio è un esperimento calcolato in tempo reale.">
+<meta name="theme-color" content="#e9ebee">
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+<style>
+@font-face { font-family: "Fraunces Variable"; font-style: italic; font-weight: 100 900; font-display: swap; src: url("./vendor/fonts/fraunces-latin-full-italic.woff2") format("woff2-variations"); }
+@font-face { font-family: "Fraunces Variable"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("./vendor/fonts/fraunces-latin-full-normal.woff2") format("woff2-variations"); }
+@font-face { font-family: "Geist Variable"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("./vendor/fonts/geist-latin-wght-normal.woff2") format("woff2-variations"); }
+@font-face { font-family: "Geist Mono Variable"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("./vendor/fonts/geist-mono-latin-wght-normal.woff2") format("woff2-variations"); }
+:root { --ink: #12151a; --ink-2: #3c434d; --mute: #7b838f; --line: rgba(18, 21, 26, 0.1); --accent: #e8452c; --serif: "Fraunces Variable", Georgia, serif; --sans: "Geist Variable", "Segoe UI", system-ui, sans-serif; --mono: "Geist Mono Variable", ui-monospace, Consolas, monospace; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: #e9ebee; }
+body { margin: 0; min-height: 100vh; color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  background:
+    linear-gradient(rgba(18, 21, 26, 0.05) 1px, transparent 1px) 0 0 / 100% 96px,
+    linear-gradient(90deg, rgba(18, 21, 26, 0.05) 1px, transparent 1px) 0 0 / 96px 100%,
+    linear-gradient(rgba(18, 21, 26, 0.025) 1px, transparent 1px) 0 0 / 100% 24px,
+    linear-gradient(90deg, rgba(18, 21, 26, 0.025) 1px, transparent 1px) 0 0 / 24px 100%,
+    radial-gradient(120% 90% at 30% 0%, #f6f7f8 0%, #e9ebee 55%, #d9dde3 100%);
+  background-attachment: fixed; }
+main { max-width: 1120px; margin: 0 auto; padding: clamp(28px, 6vw, 72px) clamp(20px, 5vw, 48px) 64px; }
+.kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #c2331d; display: flex; align-items: center; gap: 10px; margin: 0; }
+.kicker::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+h1 { font-family: var(--serif); font-weight: 360; font-size: clamp(54px, 10vw, 124px); line-height: 0.92; letter-spacing: -0.035em; margin: 18px 0 22px; font-variation-settings: "opsz" 144, "SOFT" 60; }
+h1 em { font-style: italic; font-weight: 320; }
+.lede { max-width: 46ch; color: var(--ink-2); font-size: clamp(16px, 1.6vw, 19px); margin: 0 0 clamp(30px, 5vw, 52px); }
+
+/* filtri per branca e scelta della vista */
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: clamp(26px, 4vw, 40px); }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filters button { font: 500 13.5px var(--sans); color: var(--ink-2); background: rgba(255, 255, 255, 0.65); border: 1px solid var(--line); border-radius: 999px; padding: 8px 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+.filters button:hover { border-color: rgba(18, 21, 26, 0.3); }
+.filters button i { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--mute); }
+.filters button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.filters button.on i { color: rgba(255, 255, 255, 0.6); }
+.views { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255, 255, 255, 0.65); }
+.views button { display: inline-flex; align-items: center; gap: 7px; font: 500 13px var(--sans); color: var(--ink-2); border: 0; background: transparent; border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.views button.on { background: var(--ink); color: #fff; }
+.views svg { width: 15px; height: 15px; }
+
+/* una sezione per branca */
+.branch { margin-bottom: clamp(44px, 6vw, 64px); }
+.list-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; border-top: 1px solid var(--ink); padding-top: 12px; margin-bottom: 22px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+.list-head .bname { font-family: var(--serif); font-style: italic; font-weight: 380; font-size: clamp(26px, 3vw, 34px); letter-spacing: -0.015em; text-transform: none; color: var(--ink); margin-right: 14px; font-variation-settings: "opsz" 144, "SOFT" 50; }
+.list-head .what { white-space: nowrap; }
+
+/* elenco: schede grandi una sotto l'altra */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); background: rgba(250, 250, 251, 0.82); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 30px 70px -40px rgba(18, 21, 26, 0.45); transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s; backdrop-filter: blur(14px); }
+.lab + .lab { margin-top: 26px; }
+.lab:hover { transform: translateY(-4px); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 44px 90px -42px rgba(18, 21, 26, 0.55); }
+.lab figure { margin: 0; overflow: hidden; min-height: 360px; background: #dfe2e6; }
+.lab img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.lab:hover img { transform: scale(1.035); }
+.lab .body { padding: clamp(22px, 3vw, 38px); display: flex; flex-direction: column; }
+.lab .no { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
+.lab h2 { font-family: var(--serif); font-weight: 380; font-size: clamp(30px, 3.6vw, 44px); line-height: 1; letter-spacing: -0.02em; margin: 14px 0 14px; font-variation-settings: "opsz" 144, "SOFT" 50; }
+.lab h2 em { font-style: italic; font-weight: 340; }
+.lab p { margin: 0 0 20px; color: var(--ink-2); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 26px; padding: 0; list-style: none; }
+.tags li { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.6); color: var(--ink-2); }
+.go { margin-top: auto; display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; background: var(--ink); color: #fff; border-radius: 999px; padding: 10px 18px 10px 12px; font-weight: 500; font-size: 14px; }
+.go i { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px #fff inset; }
+
+/* griglia: schede compatte su più colonne */
+.labs.grid .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 18px; }
+.labs.grid .lab { display: flex; flex-direction: column; border-radius: 16px; }
+.labs.grid .lab + .lab { margin-top: 0; }
+.labs.grid .lab figure { min-height: 0; aspect-ratio: 16 / 10; }
+.labs.grid .lab .body { padding: 15px 17px 18px; flex: 1; }
+.labs.grid .lab .no { font-size: 10px; }
+.labs.grid .lab h2 { font-size: 24px; margin: 9px 0 9px; }
+.labs.grid .lab p { font-size: 13.5px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 16px; }
+.labs.grid .tags { display: none; }
+.labs.grid .go { padding: 8px 15px 8px 10px; font-size: 13px; }
+.labs.grid .go i { width: 15px; height: 15px; }
+
+.soon { margin-top: 6px; color: var(--mute); font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.04em; }
+footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-family: var(--mono); font-size: 11px; color: var(--mute); letter-spacing: 0.04em; }
+@media (max-width: 780px) {
+  .lab { grid-template-columns: 1fr; } .lab figure { min-height: 0; aspect-ratio: 16 / 10; }
+  .list-head { flex-direction: column; gap: 2px; }
+  .list-head .what { white-space: normal; }
+}
+/* telefono: la griglia diventa un indice a due colonne (immagine, tema, titolo) */
+@media (max-width: 560px) {
+  .filters { gap: 5px; }
+  .filters button { padding: 7px 11px; font-size: 13px; gap: 6px; }
+  .labs.grid .cards { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .labs.grid .lab { border-radius: 14px; }
+  .labs.grid .lab figure { aspect-ratio: 4 / 3; }
+  .labs.grid .lab .body { padding: 10px 12px 13px; }
+  .labs.grid .lab .no { font-size: 9px; letter-spacing: 0.12em; }
+  .labs.grid .lab h2 { font-size: 19px; line-height: 1.05; margin: 6px 0 0; }
+  .labs.grid .lab p, .labs.grid .go { display: none; }
+}
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">Laboratori di fisica interattivi</p>
+  <h1>Galileo <em>Sim</em></h1>
+  <p class="lede">Esperimenti da ruotare, smontare e misurare. Ogni laboratorio è una simulazione fisica calcolata in tempo reale nel browser: niente video, niente trucchi.</p>
+
+  <div class="toolbar">
+    <div class="filters" role="group" aria-label="Filtra per branca della fisica">
+      <button type="button" data-f="tutti">Tutti <i></i></button>
+      <button type="button" data-f="meccanica">Meccanica <i></i></button>
+      <button type="button" data-f="fluidi">Fluidi <i></i></button>
+      <button type="button" data-f="onde">Onde <i></i></button>
+      <button type="button" data-f="ottica">Ottica <i></i></button>
+    </div>
+    <div class="views" role="group" aria-label="Disposizione dei laboratori">
+      <button type="button" data-v="list" title="Elenco: schede grandi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="4.5" width="17" height="6" rx="1.5"/><rect x="3.5" y="13.5" width="17" height="6" rx="1.5"/></svg>Elenco</button>
+      <button type="button" data-v="grid" title="Griglia: schede compatte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Griglia</button>
+    </div>
+  </div>
+
+  <div id="labs" class="labs">
+    <section class="branch" data-branch="meccanica" aria-label="Meccanica">
+      <div class="list-head"><span><span class="bname">Meccanica</span><span class="what">moto, forze, urti</span></span><span class="count"></span></div>
+      <div class="cards">
+        <a class="lab" href="./labs/caduta/">
+          <figure><img src="./assets/lab-caduta.jpg" alt="Asta graduata con un martello, una pallina e una piuma lasciati cadere insieme; immagini stroboscopiche mostrano la piuma rimasta indietro" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Cinematica</span>
+            <h2>Il moto di <em>caduta</em></h2>
+            <p>Lascia cadere insieme una pallina di massa variabile, una piuma e un martello da un'asta graduata. Con o senza aria, su sette pianeti, anche lanciandoli: il cronometro misura il millesimo di secondo.</p>
+            <ul class="tags"><li>caduta libera</li><li>attrito dell'aria</li><li>velocità limite</li><li>Apollo 15</li><li>moto parabolico</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/piano/">
+          <figure><img src="./assets/lab-piano.jpg" alt="Una tavola di legno inclinata su un sostegno, con il righello: un carrello carico di dischi scende sotto cinque campanelli d'ottone, dietro c'è il goniometro" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Dinamica</span>
+            <h2>Il piano <em>inclinato</em></h2>
+            <p>Una tavola di legno che si inclina fino a 60°, un carrello su ruote e un blocco con quattro fondi diversi. Misura le componenti del peso con il dinamometro, cerca l'angolo limite dell'attrito, cronometra la discesa con le fotocellule e ascolta i campanelli di Galileo battere tempi uguali.</p>
+            <ul class="tags"><li>componenti del peso</li><li>attrito statico e dinamico</li><li>angolo limite</li><li>fotocellule</li><li>campanelli di Galileo</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/rotolamento/">
+          <figure><img src="./assets/lab-rotolamento.jpg" alt="Una tavola di legno larga a cinque corsie: sfere, un cilindro e un anello rotolano lasciando le cicloidi colorate disegnate da un punto del bordo" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Rotazione</span>
+            <h2>Il moto di <em>rotolamento</em></h2>
+            <p>Fino a cinque corpi insieme su una tavola a corsie, in piano o inclinata fino a 40°: sfera piena e cava, cilindro, anello, una ruota sui binari e un pattino senza attrito. Guarda la traiettoria di un punto a distanza r dall'asse, le velocità dei punti del bordo, e quando l'attrito non basta più e il corpo striscia.</p>
+            <ul class="tags"><li>momento d'inerzia</li><li>a = g·sin α/(1+k)</li><li>cicloide e trocoidi</li><li>strisciamento</li><li>effetto all'indietro</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/pendolo/">
+          <figure><img src="./assets/lab-pendolo.jpg" alt="Un anello d'ottone appeso per il bordo oscilla davanti a un goniometro trasparente, insieme a una pallina arancione su un filo lungo quanto il suo diametro; sotto, una fotocellula a forcella" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Oscillazioni</span>
+            <h2>Il <em>pendolo</em></h2>
+            <p>Una sfera su un filo, di piombo o di sughero, oppure un'asta forata, un disco, un anello appesi a un perno. Conta i periodi con la fotocellula, misura g dalla lunghezza, guarda il periodo allungarsi alle grandi ampiezze e trova il pendolo semplice che batte insieme al corpo rigido.</p>
+            <ul class="tags"><li>isocronismo</li><li>T = 2π·√(L/g)</li><li>pendolo fisico</li><li>centro di oscillazione</li><li>spazio delle fasi</li><li>piombo e sughero</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/parabolico/">
+          <figure><img src="./assets/lab-parabolico.jpg" alt="Un lanciatore a molla con goniometro spara sei palline con alzi diversi: le parabole colorate toccano tutte la parabola di sicurezza tratteggiata" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Cinematica</span>
+            <h2>Il moto <em>parabolico</em></h2>
+            <p>Un lanciatore a molla con goniometro: scegli velocità, alzo e altezza, poi guarda la pallina volare, rimbalzare e rotolare. Centra un bersaglio a terra con due alzi diversi, colpisci un barattolo che cade, confronta la Terra con la Luna. Oppure lascia rotolare la pallina sul piano curvo in legno di Galileo e rifai le sue misure del 1608.</p>
+            <ul class="tags"><li>gittata</li><li>alzo di 45°</li><li>composizione dei moti</li><li>parabola di sicurezza</li><li>il cacciatore e la scimmia</li><li>Galileo, foglio 116v</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/circolare/">
+          <figure><img src="./assets/lab-circolare.jpg" alt="Piattaforma rotante a cuscino d'aria con due dischi su un braccio a raggi diversi, i vettori velocità e forza e una fotocellula sopra il bordo" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Dinamica</span>
+            <h2>Il moto <em>circolare</em></h2>
+            <p>Una piattaforma rotante porta dei dischi a cuscino d'aria: il sensore misura la forza verso il centro, la fotocellula il periodo. Sgancia un disco e guardalo partire lungo la tangente, poi sali sulla piattaforma e scopri le forze apparenti.</p>
+            <ul class="tags"><li>forza centripeta</li><li>v = ω·r</li><li>periodo e frequenza</li><li>forza di Coriolis</li><li>moto armonico</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/guidovia/">
+          <figure><img src="./assets/lab-guidovia.jpg" alt="Guidovia a cuscino d'aria con due carrelli, rosso e blu, subito dopo un urto elastico: le immagini stroboscopiche mostrano il rosso che si ferma e il blu che riparte, fra due fotocellule" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Dinamica e urti</span>
+            <h2>La <em>guidovia</em></h2>
+            <p>Una rotaia che soffia aria: i carrelli galleggiano quasi senza attrito. Misura con le fotocellule il moto uniforme e quello accelerato, su un piano inclinato o tirato da un pesetto, poi fai urtare i carrelli con molle, gomma o velcro e guarda dove va la quantità di moto.</p>
+            <ul class="tags"><li>moto rettilineo uniforme</li><li>moto accelerato</li><li>seconda legge di Newton</li><li>urti elastici e anelastici</li><li>quantità di moto</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="branch" data-branch="fluidi" aria-label="Fluidi">
+      <div class="list-head"><span><span class="bname">Fluidi</span><span class="what">spinta, galleggiamento, viscosità</span></span><span class="count"></span></div>
+      <div class="cards">
+        <a class="lab" href="./labs/viscosita/">
+          <figure><img src="./assets/lab-viscosita.jpg" alt="Tubo di vetro pieno di olio di ricino su un sostegno da laboratorio: una sfera d'acciaio scende, le sue immagini stroboscopiche sono equidistanti, le frecce mostrano peso, spinta e attrito in equilibrio" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Viscosità</span>
+            <h2>Caduta in un fluido <em>viscoso</em></h2>
+            <p>Una sfera nella glicerina accelera per un istante, poi scende a velocità costante. Misura il tempo fra due anelli con le fotocellule o a mano e ricava la viscosità; cambia fluido, temperatura, sfera e tubo, fino a vedere dove la legge di Stokes smette di valere.</p>
+            <ul class="tags"><li>legge di Stokes</li><li>velocità limite</li><li>viscosità e temperatura</li><li>numero di Reynolds</li><li>spinta di Archimede</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/archimede/">
+          <figure><img src="./assets/lab-archimede.jpg" alt="Un dinamometro a molla su un sostegno regge un cilindro d'ottone immerso in un vaso a sfioro: l'acqua spostata trabocca dal beccuccio in un becherino sulla bilancia elettronica" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Idrostatica</span>
+            <h2>La spinta di <em>Archimede</em></h2>
+            <p>Appendi un corpo al dinamometro e immergilo: perde peso quanto pesa il liquido che sposta. Misuralo con la bilancia sotto il becher, raccogli il liquido che trabocca dal vaso a sfioro, rifai l'esperimento del secchiello. Poi taglia il filo e guarda cosa affonda, cosa galleggia e come si dispone.</p>
+            <ul class="tags"><li>legge di Archimede</li><li>dinamometro</li><li>vaso a sfioro</li><li>galleggiamento</li><li>densità</li><li>azione e reazione</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="branch" data-branch="onde" aria-label="Onde">
+      <div class="list-head"><span><span class="bname">Onde</span><span class="what">corde, suono, acqua</span></span><span class="count"></span></div>
+      <div class="cards">
+        <a class="lab" href="./labs/onde/">
+          <figure><img src="./assets/lab-onde.jpg" alt="Una corda tesa su un tavolo da laboratorio, tra un vibratore e una carrucola con i pesi appesi, vibra in tre ventri illuminata da una lampada stroboscopica" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Onde stazionarie</span>
+            <h2>Le onde <em>stazionarie</em></h2>
+            <p>La corda di Melde, tesa da un peso e scossa da un vibratore, e il tubo sonoro con l'altoparlante, chiuso o aperto. Cerca le risonanze con il generatore, conta i ventri, rallenta il moto con lo stroboscopio, guarda la polvere di sughero raccogliersi nei nodi e ricava la velocità del suono.</p>
+            <ul class="tags"><li>nodi e ventri</li><li>v = √(T/μ)</li><li>armoniche</li><li>tubo di Kundt</li><li>stroboscopio</li><li>battimenti</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/vaschetta/">
+          <figure><img src="./assets/lab-vaschetta.jpg" alt="Una vaschetta d'acqua col fondo di vetro su quattro gambe: due punte vibrano nell'acqua e sul foglio bianco sotto la vasca la luce disegna i cerchi delle onde e le linee nodali dell'interferenza" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Onde sull'acqua</span>
+            <h2>La vaschetta <em>ondoscopica</em></h2>
+            <p>Una punta che vibra nell'acqua e una lampada che ne proietta le increspature su un foglio, o con uno specchio a 45° su uno schermo. Misura la lunghezza d'onda, fai interferire due sorgenti, manda onde piane contro fenditure, pareti, uno specchio parabolico, una lastra e una lente, e fai correre la punta fino all'onda d'urto.</p>
+            <ul class="tags"><li>λ = v/f</li><li>interferenza</li><li>diffrazione</li><li>riflessione</li><li>rifrazione</li><li>Doppler</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="branch" data-branch="ottica" aria-label="Ottica">
+      <div class="list-head"><span><span class="bname">Ottica</span><span class="what">luce, lenti, onde</span></span><span class="count"></span></div>
+      <div class="cards">
+        <a class="lab" href="./labs/fotocamera/">
+          <figure><img src="./assets/lab-fotocamera.jpg" alt="Spaccato di una fotocamera: i raggi di luce attraversano le lenti e convergono sul sensore" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Ottica geometrica</span>
+            <h2>La macchina <em>fotografica</em></h2>
+            <p>Segui i raggi di luce attraverso un obiettivo vero, lente per lente, fino all'immagine capovolta sul sensore. Poi scatta: diaframma, messa a fuoco, tempo di posa e ISO si comportano come nella realtà.</p>
+            <ul class="tags"><li>equazione delle lenti</li><li>profondità di campo</li><li>esposizione</li><li>camera oscura</li><li>aberrazioni</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/prisma/">
+          <figure><img src="./assets/lab-prisma.jpg" alt="Un prisma di vetro su una piattaforma girevole apre un fascio di luce bianca in un ventaglio di colori diretto verso uno schermo graduato" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Ottica geometrica</span>
+            <h2>Il prisma <em>ottico</em></h2>
+            <p>Luce bianca, lampade spettrali o laser attraverso prismi di otto materiali veri. Ruota il prisma fino alla deviazione minima, poi passa allo spettroscopio e misura le righe del mercurio, il doppietto del sodio, la serie di Balmer.</p>
+            <ul class="tags"><li>dispersione</li><li>deviazione minima</li><li>riflessione totale</li><li>spettroscopio</li><li>righe spettrali</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/lenti/">
+          <figure><img src="./assets/lab-lenti.jpg" alt="Banco ottico: una lampada illumina una F, una lente su un cavaliere fa convergere i raggi principali e sullo schermo si forma la F capovolta" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Ottica geometrica</span>
+            <h2>Lenti e <em>immagini</em></h2>
+            <p>Lenti vere, convergenti e divergenti, su un banco ottico. Cerca l'immagine nitida sullo schermo, misura p e q e ricava la focale, anche con il metodo di Bessel. Guarda nella lente d'ingrandimento e nel cannocchiale, e scopri le aberrazioni sferica e cromatica.</p>
+            <ul class="tags"><li>1/p + 1/q = 1/f</li><li>ingrandimento</li><li>immagini virtuali</li><li>Bessel</li><li>cannocchiale</li><li>aberrazioni</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/interferenza/">
+          <figure><img src="./assets/lab-interferenza.jpg" alt="Banco ottico: un fascio di luce bianca attraversa un reticolo e si apre nei colori dello spettro sullo schermo" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Ottica ondulatoria</span>
+            <h2>Interferenza e <em>diffrazione</em></h2>
+            <p>Un banco ottico con laser o luce bianca: fenditure, fori, fili, dischi, reticoli e lenti da spostare lungo la rotaia. La figura sullo schermo è calcolata come onda, dal campo vicino a quello lontano.</p>
+            <ul class="tags"><li>esperimento di Young</li><li>fenditura singola</li><li>reticolo e spettro</li><li>disco di Airy</li><li>macchia di Arago</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+        <a class="lab" href="./labs/fizeau/">
+          <figure><img src="./assets/lab-fizeau.jpg" alt="Tavolo ottico di legno con lampada, lamina semiriflettente, ruota dentata con contagiri e obiettivo; il fascio di luce parte verso un secondo tavolo lontano con lo specchio" width="1600" height="1000" loading="lazy"></figure>
+          <div class="body">
+            <span class="no">Velocità della luce</span>
+            <h2>L'esperimento di <em>Fizeau</em></h2>
+            <p>Parigi, 1849: una ruota da 720 denti taglia la luce in lampi, uno specchio a 8,6 km la rimanda indietro. Accelera la ruota finché la luce sparisce e ricava la velocità della luce; al rallentatore guarda gli impulsi andare e tornare mentre la ruota avanza di mezzo dente. Poi rifallo con la versione moderna: laser, telecamera e tachimetro laser.</p>
+            <ul class="tags"><li>velocità della luce</li><li>ruota dentata</li><li>c = 4·d·N·f</li><li>Suresnes–Montmartre</li><li>laser e telecamera</li></ul>
+            <span class="go"><i></i>Apri il laboratorio</span>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+  <p class="soon">Altri laboratori in preparazione.</p>
+
+  <footer><span>Galileo Sim</span><span>WebGL 2 · nessuna installazione</span></footer>
+</main>
+<script>
+// Filtro per branca (anche dall'indirizzo: #ottica, #meccanica, #fluidi, #onde) e vista a elenco o a griglia,
+// ricordati nel browser. Funziona anche senza memoria del browser: si riparte da «Tutti» ed «Elenco».
+(() => {
+  const root = document.getElementById('labs');
+  const sections = [...root.querySelectorAll('.branch')];
+  const filters = [...document.querySelectorAll('.filters button')];
+  const views = [...document.querySelectorAll('.views button')];
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { /* memoria non disponibile */ } },
+  };
+  let total = 0;
+  for (const s of sections) {
+    const n = s.querySelectorAll('.lab').length;
+    total += n;
+    s.querySelector('.count').textContent = `${n} ${n === 1 ? 'laboratorio' : 'laboratori'}`;
+    const b = filters.find((x) => x.dataset.f === s.dataset.branch);
+    if (b) b.querySelector('i').textContent = n;
+  }
+  filters.find((x) => x.dataset.f === 'tutti').querySelector('i').textContent = total;
+
+  function setFilter(f) {
+    for (const s of sections) s.hidden = f !== 'tutti' && s.dataset.branch !== f;
+    for (const b of filters) { b.classList.toggle('on', b.dataset.f === f); b.setAttribute('aria-pressed', b.dataset.f === f); }
+    store.set('gs-filter', f);
+    try { history.replaceState(null, '', f === 'tutti' ? location.pathname + location.search : `#${f}`); } catch { /* file locale */ }
+  }
+  function setView(v) {
+    root.classList.toggle('grid', v === 'grid');
+    for (const b of views) { b.classList.toggle('on', b.dataset.v === v); b.setAttribute('aria-pressed', b.dataset.v === v); }
+    store.set('gs-view', v);
+  }
+  filters.forEach((b) => b.addEventListener('click', () => setFilter(b.dataset.f)));
+  views.forEach((b) => b.addEventListener('click', () => setView(b.dataset.v)));
+  const valid = (f) => filters.some((b) => b.dataset.f === f);
+  const fromHash = decodeURIComponent(location.hash.slice(1));
+  setFilter(valid(fromHash) ? fromHash : valid(store.get('gs-filter')) ? store.get('gs-filter') : 'tutti');
+  setView(store.get('gs-view') === 'grid' ? 'grid' : 'list');
+  window.addEventListener('hashchange', () => { const f = location.hash.slice(1); if (valid(f)) setFilter(f); });
+})();
+</script>
+</body>
+</html>
