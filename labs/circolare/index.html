@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il moto circolare — Galileo Sim</title>
+<meta name="description" content="Moto circolare in 3D: una piattaforma rotante porta dei dischi a cuscino d'aria. Sensore di forza, fotocellula, sgancio lungo la tangente, osservatore sulla piattaforma con le forze apparenti, ombra che compie un moto armonico.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: piattaforma rotante con dischi a cuscino d'aria"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Meccanica · Dinamica</p>
+    <h1>Il moto <em>circolare</em></h1>
+    <p class="lede">Una piattaforma che gira, un disco che le corre attorno: velocità, accelerazione e forza verso il centro.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Motore <span>01</span></h2>
+      <div class="row" data-ctl="rpm"></div>
+      <div class="row" data-ctl="dir"></div>
+      <div class="row" data-ctl="alpha"></div>
+    </section>
+    <section class="sec">
+      <h2>Dischi <span>02</span></h2>
+      <div class="row" data-ctl="rA"></div>
+      <div class="row" data-ctl="mA"></div>
+      <div data-ctl="useB"></div>
+      <div class="row" data-ctl="rB" data-b></div>
+      <div class="row" data-ctl="mB" data-b></div>
+    </section>
+    <section class="sec">
+      <h2>Osservatore <span>03</span></h2>
+      <div class="row" data-ctl="frame"></div>
+      <p class="help" id="frame-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>04</span></h2>
+      <div class="row" data-ctl="slow"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>05</span></h2>
+      <div data-ctl="trail"></div>
+      <div data-ctl="vVec"></div>
+      <div data-ctl="aVec"></div>
+      <div data-ctl="fVec"></div>
+      <div data-ctl="shadow"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Il moto.</b> Il motore porta la piattaforma alla velocità scelta con accelerazione angolare costante. Finché è agganciato al braccio, il disco ha velocità v = ω·r tangente al cerchio, accelerazione centripeta ω²·r e, durante l'avvio, anche un'accelerazione tangenziale α·r. Il sensore misura la forza che il braccio esercita verso il centro: F = m·ω²·r.</p>
+      <p><b>Lo sgancio.</b> La piattaforma è a cuscino d'aria: senza attrito, una volta sganciato il disco non è più spinto da nulla e prosegue in linea retta lungo la tangente, mentre la piattaforma gli ruota sotto. Oltre il bordo cade come un proiettile e poi frena sul pavimento.</p>
+      <p><b>Sulla piattaforma.</b> Chi ruota con la piattaforma vede il disco fermo: per spiegarlo deve aggiungere una forza centrifuga uguale e opposta a quella del braccio. Dopo lo sgancio vede una traiettoria curva, dovuta alla forza centrifuga e a quella di Coriolis.</p>
+      <p><b>L'ombra.</b> La luce parallela della lampada proietta il disco sullo schermo: l'ombra va avanti e indietro con un moto armonico, x = r·cos(ωt).</p>
+      <p><b>Limiti.</b> Il braccio è rigido e senza massa; l'aria non frena il disco; le ombre sullo schermo sono solo quelle dei dischi.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> avvia o ferma il motore · <b>P</b> per la pausa · <span class="do"><b>S</b> sgancia i dischi</span></div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Sensore di forza e fotocellula">
+  <div class="bar top"><span><b>Sensore di forza</b><span class="wide"> · disco A</span></span><span class="status" id="status">fermo</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="force">0,000</span><small>N</small></div>
+    <div class="clock-side"><span id="period">periodo —</span><span id="omega">ω 0,00 rad/s</span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico nel tempo"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="motor" title="Avvia o ferma il motore (barra spaziatrice)"><i></i><span>Avvia motore</span></button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)" disabled>Pausa</button>
+      <button class="btn small" id="release" title="Sgancia i dischi dal braccio (S)">Sgancia</button>
+      <button class="btn small" id="reset" title="Ferma tutto e riaggancia i dischi (R)">Riporta</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="F" class="on">forza</button><button data-k="v">velocità</button><button data-k="x">ombra</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Metto in bolla la piattaforma…<small>Galileo Sim · Meccanica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

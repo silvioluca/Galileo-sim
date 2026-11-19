@@ -1,0 +1,44 @@
+/* Il moto parabolico — aggiunte al foglio comune dei laboratori */
+
+[hidden] { display: none !important; }
+.help { margin: -2px 0 10px; font-size: 11.5px; color: var(--mute); }
+.help b { color: var(--ink-2); font-weight: 550; font-family: var(--mono); font-size: 11px; }
+[data-ctl].disabled { opacity: 0.38; pointer-events: none; }
+.sec.presets { border-top: 1px solid var(--line); margin-top: 4px; }
+#aim .btn { font-family: var(--mono); font-size: 11px; }
+#aim .btn b { font-weight: 600; color: var(--accent-ink); margin-left: 4px; }
+
+/* cronometro */
+#live .clockbox { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 4px 16px 10px; }
+#live .clock { font-family: var(--mono); font-size: 46px; line-height: 1; letter-spacing: -0.02em; color: var(--ink); font-feature-settings: "tnum"; }
+#live .clock small { font-size: 16px; color: var(--mute); margin-left: 4px; letter-spacing: 0; }
+#live .clock.run { color: var(--accent-ink); }
+#live .clock-side { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; font-family: var(--mono); font-size: 10.5px; color: var(--mute); text-align: right; padding-bottom: 4px; font-feature-settings: "tnum"; }
+#live .clock-side span:first-child { color: var(--ink-2); }
+#live .rows { padding: 0 12px 8px; display: grid; gap: 3px; max-height: 148px; overflow-y: auto; scrollbar-width: thin; }
+#live .rows .empty { margin: 0; padding: 6px 4px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--mute); }
+#live .obj { display: grid; grid-template-columns: 10px 1fr auto auto; gap: 9px; align-items: baseline; font-size: 12px; padding: 4px 4px; border-top: 1px solid var(--line); }
+#live .obj i { width: 9px; height: 9px; border-radius: 50%; align-self: center; }
+#live .obj .n { color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#live .obj .n small { color: var(--mute); font-family: var(--mono); font-size: 10.5px; margin-left: 5px; }
+#live .obj .t { font-family: var(--mono); font-size: 13px; color: var(--ink); font-feature-settings: "tnum"; min-width: 62px; text-align: right; }
+#live .obj .v { font-family: var(--mono); font-size: 11px; color: var(--mute); font-feature-settings: "tnum"; min-width: 60px; text-align: right; }
+#live .obj.done .t { color: var(--accent-ink); }
+#plot { display: block; width: 100%; height: auto; background: #f7f7f5; border-top: 1px solid rgba(18, 21, 26, 0.18); border-bottom: 1px solid rgba(18, 21, 26, 0.12); }
+#live .actions { display: flex; align-items: center; gap: 8px; padding: 10px 12px 6px; }
+#live .shutter-btn span { min-width: 64px; text-align: left; }
+#live .plotkind { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 12px 12px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mute); }
+#live .seg.mini { padding: 2px; border-radius: 9px; }
+#live .seg.mini button { padding: 4px 9px; font-size: 11px; border-radius: 7px; text-transform: none; letter-spacing: 0; }
+
+#stage.sliding { cursor: grab; }
+
+@media (max-width: 860px) {
+  :root { --live-w: min(330px, calc(100vw - 20px)); }
+  #live .shutter-btn span { min-width: 0; }
+  #plot { display: none; }
+  #live .rows { display: none; }
+  #live .clock { font-size: 34px; }
+  #live .plotkind { display: none; }
+  #live .shutter-btn { flex: 1; justify-content: center; }
+}

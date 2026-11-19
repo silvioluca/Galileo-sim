@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La vaschetta ondoscopica — Galileo Sim</title>
+<meta name="description" content="La vaschetta ondoscopica in 3D: onde sull'acqua da una o due punte, onde piane, una punta in moto. Interferenza, diffrazione da una e due fenditure, riflessione, specchio parabolico, rifrazione su una lastra di vetro e una lente, effetto Doppler e onda d'urto. La luce della lampada disegna le onde sul foglio.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: una vasca d'acqua col fondo di vetro su quattro gambe, una lampada sopra e un foglio bianco sotto, su cui la luce disegna le onde"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Onde · Onde sull'acqua</p>
+    <h1>La vaschetta <em>ondoscopica</em></h1>
+    <p class="lede">Una punta che vibra nell'acqua manda increspature tutto intorno. La lampada le proietta sul foglio: ogni cresta fa da lente e diventa una riga chiara. Si vedono così l'interferenza, la diffrazione, la riflessione e la rifrazione.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Sorgente <span>01</span></h2>
+      <div class="row" data-ctl="src"></div>
+      <div class="row" data-ctl="f"></div>
+      <div class="row" data-ctl="amp"></div>
+      <div class="row" data-ctl="d"></div>
+      <div class="row" data-ctl="phase"></div>
+      <div class="row" data-ctl="u"></div>
+    </section>
+    <section class="sec">
+      <h2>Ostacolo <span>02</span></h2>
+      <div class="row" data-ctl="obs"></div>
+      <div class="row" data-ctl="a"></div>
+      <div class="row" data-ctl="ds"></div>
+      <div class="row" data-ctl="ang"></div>
+    </section>
+    <section class="sec">
+      <h2>Vasca <span>03</span></h2>
+      <div class="row" data-ctl="depth"></div>
+      <div data-ctl="beaches"></div>
+    </section>
+    <section class="sec">
+      <h2>Osservazione <span>04</span></h2>
+      <div data-ctl="mirror"></div>
+      <div class="row" data-ctl="look"></div>
+      <div data-ctl="strobe"></div>
+      <div class="row" data-ctl="dstrobe"></div>
+      <div data-ctl="line"></div>
+      <div class="row" data-ctl="xl"></div>
+      <div class="chips"><button class="btn" id="clear" title="Cancella le misure annotate">Cancella le misure</button></div>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>05</span></h2>
+      <div class="row" data-ctl="slow"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>06</span></h2>
+      <div class="row" data-ctl="ambient"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Le increspature.</b> Le onde della vaschetta, lunghe da uno a cinque centimetri, sono tenute insieme dal peso dell'acqua e dalla tensione superficiale: ω² = (g·k + σ/ρ·k³)·tanh(k·h). Per questo la loro velocità, circa 23 cm/s, cambia poco con la frequenza; dove l'acqua è bassa, sopra una lastra di vetro, tanh(k·h) è più piccolo e l'onda rallenta.</p>
+      <p><b>L'immagine sul foglio.</b> La lampada sta sopra la vasca, il foglio sotto, 32 cm più in basso. Ogni cresta è una piccola lente convergente: concentra la luce e sul foglio diventa una riga chiara, mentre le valli la disperdono. L'immagine è ingrandita di una volta e mezza. Le pareti, le punte e l'asta fanno ombra.</p>
+      <p><b>Lo specchio a 45°.</b> Messo sotto la vasca, raccoglie la luce e la manda su uno schermo verticale davanti, così l'immagine si guarda di fronte, come in classe. È ingrandita di 1,8 volte e un po' più scura; le righe sono più nette perché lo schermo è più lontano dall'acqua. Lo specchio raccoglie solo la fascia centrale della vasca, e sul foglio resta la sua ombra.</p>
+      <p><b>Interferenza e diffrazione.</b> Due punte in fase mandano onde che in certi punti arrivano sempre in opposizione: lungo quelle linee nodali l'acqua sta ferma. La prima linea dopo l'asse ha d·sin θ = λ/2, il primo massimo d·sin θ = λ. Una fenditura stretta rispetto a λ si comporta come una nuova sorgente e l'onda si apre a ventaglio (Huygens); due fenditure, come due punte in fase.</p>
+      <p><b>Doppler e onda d'urto.</b> Una punta che si muove a velocità u comprime le onde davanti, λ·(1 − u/v), e le allunga dietro. Se corre più veloce delle onde, i fronti si sommano su un cono di semiapertura sin α = v/u, come la scia di una barca o il boom di un aereo.</p>
+      <p><b>Il calcolo.</b> L'equazione delle onde, con la velocità di ogni punto e un piccolo smorzamento, è integrata nella scheda grafica su una griglia di 400 × 400 celle da un millimetro, circa 470 passi al secondo. Contro le pareti l'acqua non può passare (derivata normale nulla), sulle spiagge di spugna le onde si smorzano. L'altezza delle onde nella scena è ingrandita trenta volte: nella realtà è di qualche centesimo di millimetro.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> accende e spegne il vibratore · <b>A</b> annota · <b>P</b> pausa · <b>R</b> calma l'acqua</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Misure">
+  <div class="bar top"><span><b id="live-title">Misure</b><span class="wide" id="live-sub"></span></span><span class="status" id="status">onde</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">—</span><small id="unit">cm</small></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="go" title="Accende e spegne il vibratore (barra spaziatrice)"><i></i><span>Spegni</span></button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)" disabled>Pausa</button>
+      <button class="btn small" id="note" title="Annota la lunghezza d'onda misurata (A)">Annota</button>
+      <button class="btn small" id="reset" title="Calma l'acqua (R)">Riporta</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="axis" class="on" title="Altezza dell'acqua lungo l'asse della vasca, adesso">lungo l'asse</button><button data-k="line" title="Ampiezza media lungo la linea di misura, con la teoria di Huygens">sulla linea</button><button data-k="disp" title="Lunghezza d'onda in funzione della frequenza: la dispersione delle increspature">λ e f</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Riempio la vasca…<small>Galileo Sim · Onde</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

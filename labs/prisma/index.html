@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il prisma ottico — Galileo Sim</title>
+<meta name="description" content="Prisma ottico in 3D: luce bianca, lampade spettrali e laser attraverso prismi di vetri diversi. Dispersione con indici di rifrazione reali, deviazione minima, riflessione totale e spettroscopio a prisma.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: sorgente, prisma e schermo oppure spettroscopio"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Ottica · Geometrica</p>
+    <h1>Il prisma <em>ottico</em></h1>
+    <p class="lede">Ogni colore si piega in modo diverso nel vetro: la luce si apre nel suo spettro.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <section class="sec">
+      <h2>Strumento <span>01</span></h2>
+      <div class="row" data-ctl="mode"></div>
+    </section>
+    <section class="sec">
+      <h2>Sorgente <span>02</span></h2>
+      <div class="row" data-ctl="source"></div>
+      <div class="row spectrum" data-ctl="monoNm" data-src="mono"></div>
+      <div class="row" data-ctl="slitScreen" data-mode="screen"></div>
+      <div class="row" data-ctl="slitSpectro" data-mode="spectro"></div>
+    </section>
+    <section class="sec">
+      <h2>Prisma <span>03</span></h2>
+      <div class="row" data-ctl="prism"></div>
+      <div class="row" data-ctl="apex" data-prism="custom"></div>
+      <div class="row" data-ctl="side"></div>
+      <div class="row" data-ctl="material"></div>
+      <figure class="inset">
+        <canvas id="disp-view" width="584" height="236"></canvas>
+        <figcaption><span>Indice di rifrazione n(λ)</span><span id="disp-note"></span></figcaption>
+      </figure>
+      <div class="row" data-ctl="psi"></div>
+    </section>
+    <section class="sec" data-mode="screen">
+      <h2>Schermo <span>04</span></h2>
+      <div class="row" data-ctl="radius"></div>
+    </section>
+    <section class="sec" data-mode="spectro">
+      <h2>Cannocchiale <span>04</span></h2>
+      <div class="row" data-ctl="theta"></div>
+      <p class="help">Frecce ← → per ruotarlo di 0,01° (con Maiusc 0,1°), oppure trascinalo nella scena.</p>
+    </section>
+    <section class="sec">
+      <h2>Esposizione <span>05</span></h2>
+      <div class="row" data-ctl="ev"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>06</span></h2>
+      <div class="row" data-ctl="ambient"></div>
+      <div data-ctl="air"></div>
+      <div data-ctl="notes"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Vetri veri.</b> L'indice di rifrazione di ogni materiale segue la sua equazione di Sellmeier, con i coefficienti dei cataloghi: n e numero di Abbe coincidono con i valori tabulati.</p>
+      <p><b>Raggi.</b> Ogni colore è tracciato con la legge di Snell nella sezione del prisma, faccia dopo faccia, con le perdite per riflessione di Fresnel e la riflessione totale interna quando l'angolo supera quello limite.</p>
+      <p><b>Spettro.</b> Ogni riga è l'immagine della fenditura, allargata dalla diffrazione del fascio che emerge dal prisma; lo spettro continuo è la somma di migliaia di immagini colorate, una per ogni lunghezza d'onda. Le righe delle lampade (mercurio, elio, sodio, idrogeno, neon) hanno le lunghezze d'onda e le intensità relative dei tubi a scarica.</p>
+      <p><b>Spettroscopio.</b> Collimatore e cannocchiale hanno 16 cm di focale: nell'oculare conta solo la direzione della luce. Il potere risolutivo è la larghezza del fascio emergente per la dispersione angolare.</p>
+      <p><b>Limiti.</b> Niente polarizzazione nelle immagini (Fresnel è mediato sulle due polarizzazioni); i fasci sono disegnati nel solo piano orizzontale; la lampada a incandescenza ha lo spettro di un corpo nero a 5600 K.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>tasto destro</b> per spostare · <span class="do" id="hint-do">trascina il prisma per ruotarlo</span></div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Lo spettro">
+  <div class="bar top"><span><b id="live-title">Schermo</b><span class="wide" id="live-sub"> · lo spettro</span></span><span class="status" id="status">–</span></div>
+  <div class="viewbox"><canvas id="view" width="768" height="432" title="Clic per ingrandire"></canvas></div>
+  <canvas id="plot" width="768" height="176" aria-label="Intensità lungo lo spettro"></canvas>
+  <div class="bar">
+    <div class="aim" id="aim" hidden></div>
+    <div class="actions">
+      <div class="zoom">
+        <button class="btn small" id="zoom-out" title="Allarga la vista">−</button>
+        <button class="btn small" id="zoom-auto" title="Adatta la vista allo spettro">auto</button>
+        <button class="btn small" id="zoom-in" title="Ingrandisci">+</button>
+      </div>
+      <span class="viewinfo" id="viewinfo"></span>
+      <button class="btn small" id="plot-log" title="Scala logaritmica del profilo">log</button>
+    </div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+
+<div id="lightbox"><figure><img alt="Lo spettro"><figcaption><span id="lb-cap"></span><a id="lb-dl" download="galileo-spettro.jpg">Scarica l'immagine</a></figcaption></figure></div>
+<div id="boot"><p>Taglio il prisma…<small>Galileo Sim · Ottica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

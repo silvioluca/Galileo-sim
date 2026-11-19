@@ -1,0 +1,33 @@
+/* Interferenza e diffrazione — aggiunte al foglio comune dei laboratori */
+
+[hidden] { display: none !important; }
+
+/* cursore della lunghezza d'onda: la traccia è lo spettro visibile */
+.spectrum input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius: 6px; background: linear-gradient(90deg, #6a00c9 0%, #3b1bff 12%, #0a66ff 24%, #00b7d6 36%, #12c15a 47%, #b6d400 58%, #ffcf00 66%, #ff8a00 76%, #ff2a12 88%, #a80000 100%); }
+.spectrum input[type="range"]::-moz-range-track { height: 6px; border-radius: 6px; background: linear-gradient(90deg, #6a00c9 0%, #3b1bff 12%, #0a66ff 24%, #00b7d6 36%, #12c15a 47%, #b6d400 58%, #ffcf00 66%, #ff8a00 76%, #ff2a12 88%, #a80000 100%); }
+.spectrum input[type="range"]::-webkit-slider-thumb { margin-top: -5px; }
+.swatch { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 0 1px rgba(18, 21, 26, 0.25); vertical-align: -0.5px; }
+
+.inset { margin: 2px 0 12px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line-2); background: #0c0d0f; }
+.inset canvas { display: block; width: 100%; height: auto; }
+.inset figcaption { display: flex; justify-content: space-between; gap: 8px; padding: 6px 9px 7px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); background: var(--paper-solid); }
+.inset figcaption span:last-child { color: var(--ink-2); letter-spacing: 0.02em; text-transform: none; }
+
+/* riquadro dello schermo */
+#photo { aspect-ratio: 16 / 9; cursor: crosshair; }
+#photo .scalebar { position: absolute; left: 10px; bottom: 9px; display: flex; flex-direction: column; gap: 4px; pointer-events: none; font-family: var(--mono); font-size: 10px; color: #fff; text-shadow: 0 0 3px #000, 0 0 6px rgba(0, 0, 0, 0.8); }
+#photo .scalebar i { display: block; height: 3px; background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55); border-radius: 1px; }
+#photo .cursor { position: absolute; right: 10px; top: 8px; pointer-events: none; font-family: var(--mono); font-size: 10.5px; color: #fff; text-shadow: 0 0 3px #000, 0 0 6px rgba(0, 0, 0, 0.8); font-feature-settings: "tnum"; }
+#plot { display: block; width: 100%; height: auto; background: #f7f7f5; border-top: 1px solid rgba(18, 21, 26, 0.5); }
+#live .actions { justify-content: space-between; padding: 9px 12px 10px; }
+#live .zoom { display: flex; gap: 4px; }
+#live .zoom .btn { min-width: 30px; }
+#live .btn.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+#live .viewinfo { font-family: var(--mono); font-size: 10.5px; color: var(--ink-2); flex: 1; text-align: center; white-space: nowrap; font-feature-settings: "tnum"; }
+
+#stage.sliding { cursor: ew-resize; }
+
+@media (max-width: 860px) {
+  #plot { display: none; }
+  #live .viewinfo { display: none; }
+}

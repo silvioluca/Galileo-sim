@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il piano inclinato — Galileo Sim</title>
+<meta name="description" content="Il piano inclinato in 3D: un carrello su ruote e un blocco con quattro fondi diversi. Componenti del peso, attrito statico e dinamico, angolo limite, fotocellule, dinamometro e i campanelli di Galileo.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: una tavola di legno inclinata su un sostegno, con un goniometro alla cerniera e il corpo pronto in cima"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Meccanica · Dinamica</p>
+    <h1>Il piano <em>inclinato</em></h1>
+    <p class="lede">Il peso si divide in due: una parte spinge il corpo contro il piano, l'altra lo tira giù lungo il piano. Quanto in fretta scende dipende dall'angolo e dall'attrito.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Piano <span>01</span></h2>
+      <div class="row" data-ctl="angle"></div>
+      <div class="chips"><button class="btn" id="tilt" title="Il piano parte orizzontale e si alza piano piano finché il corpo comincia a scendere">Inclina finché scivola</button></div>
+    </section>
+    <section class="sec">
+      <h2>Corpo <span>02</span></h2>
+      <div class="row" data-ctl="objA"></div>
+      <div class="row" data-ctl="surfA"></div>
+      <div class="row" data-ctl="mA"></div>
+      <p class="help" id="obj-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Misura <span>03</span></h2>
+      <div class="row" data-ctl="instr"></div>
+      <div class="row" data-ctl="g1"></div>
+      <div class="row" data-ctl="g2"></div>
+      <div class="row" data-ctl="bellMode"></div>
+      <p class="help" id="instr-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>04</span></h2>
+      <div class="row" data-ctl="slow"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>05</span></h2>
+      <div data-ctl="forces"></div>
+      <div data-ctl="comps"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="sound"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Le componenti del peso.</b> Sul piano inclinato di α il peso m·g si scompone in m·g·sin α lungo il piano, che fa scendere il corpo, e m·g·cos α contro il piano, bilanciata dalla reazione N. Senza attrito un corpo che striscia scende con a = g·sin α, qualunque sia la sua massa.</p>
+      <p><b>L'attrito.</b> Il blocco resta fermo finché m·g·sin α non supera l'attrito statico massimo μs·N: l'angolo limite ha tan α = μs. Poi scivola frenato dall'attrito dinamico, più piccolo: a = g·(sin α − μd·cos α). </p>
+      <p><b>Le ruote.</b> Il carrello scende quasi come un corpo senza attrito: resta solo un piccolo attrito di rotolamento. Le ruote però devono anche mettersi a girare, e un poco dell'energia va lì: per questo un carrello più carico arriva appena prima. I corpi che rotolano davvero, sfere e cilindri, hanno un laboratorio tutto loro: il moto di rotolamento.</p>
+      <p><b>Le misure.</b> Il cronometro parte quando si abbassano i fermi; ogni fotocellula segna l'istante in cui il bordo anteriore taglia il raggio e la velocità media mentre lo tiene interrotto. Partendo da fermo, a = 2·s/t². I campanelli suonano quando il corpo tocca il loro filo: a distanze 1, 4, 9, 16, 25 battono tempi uguali, come mostrò Galileo; nei musei di storia della scienza si conservano piani inclinati di legno del Settecento con i campanelli spostabili.</p>
+      <p><b>Il calcolo.</b> Il moto di ogni corpo è integrato a passi di mezzo millisecondo, con l'attrito statico e dinamico, la resistenza dell'aria, il respingente di gomma in fondo e la molla del dinamometro.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> per partire · <b>P</b> pausa · <b>R</b> riporta in cima · <span class="do">trascina la tavola per cambiare l'inclinazione</span></div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Cronometro e misure">
+  <div class="bar top"><span><b id="live-title">Cronometro</b><span class="wide" id="live-sub"></span></span><span class="status" id="status">pronto</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">0,000</span><small id="unit">s</small></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico del moto"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="go" title="Abbassa i fermi e fa partire il cronometro (barra spaziatrice)"><i></i><span>Via</span></button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)" disabled>Pausa</button>
+      <button class="btn small" id="reset" title="Riporta i corpi in cima (R)">Riporta</button>
+      <button class="btn small" id="clear" title="Cancella le misure">Cancella</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="s" class="on" title="Spazio percorso in funzione del tempo">s(t)</button><button data-k="v" title="Velocità in funzione del tempo">v(t)</button><button data-k="law" title="Accelerazione misurata (o F/m del dinamometro) in funzione di sin α">a e sin α</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Inclino il piano…<small>Galileo Sim · Meccanica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le onde stazionarie — Galileo Sim</title>
+<meta name="description" content="Le onde stazionarie in 3D: la corda di Melde tesa da un peso e messa in vibrazione da un generatore, e il tubo sonoro chiuso o aperto con l'altoparlante e la polvere di Kundt. Nodi e ventri, risonanze, stroboscopio, onde progressive, curva di risonanza, velocità del suono.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: un tavolo da laboratorio con un vibratore, una corda tesa che passa su una carrucola con i pesi appesi, un generatore di funzioni e una lampada stroboscopica"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Onde · Corde e tubi sonori</p>
+    <h1>Le onde <em>stazionarie</em></h1>
+    <p class="lede">Un'onda che corre lungo una corda o dentro un tubo si riflette all'estremo e torna indietro. Le due onde si sommano: a certe frequenze si rinforzano e la corda, o l'aria, vibra a ventri e nodi che stanno fermi.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Esperimento <span>01</span></h2>
+      <div class="row" data-ctl="mode"></div>
+    </section>
+    <section class="sec">
+      <h2 id="h-sys">Corda <span>02</span></h2>
+      <div class="row" data-ctl="L"></div>
+      <div class="row" data-ctl="mass"></div>
+      <div class="row" data-ctl="str"></div>
+      <div class="row" data-ctl="Lt"></div>
+      <div class="row" data-ctl="ends"></div>
+      <div class="row" data-ctl="temp"></div>
+      <p class="help" id="sys-note"></p>
+      <div data-ctl="particles"></div>
+      <div data-ctl="powder"></div>
+      <div class="row" data-ctl="grain"></div>
+      <div class="chips" id="level-row"><button class="btn" id="level" title="Stende di nuovo la polvere in uno strato liscio">Livella la polvere</button></div>
+    </section>
+    <section class="sec">
+      <h2>Generatore <span>03</span></h2>
+      <div class="row" data-ctl="f"></div>
+      <div class="chips fine" id="fine"></div>
+      <span class="seg-label">Risonanze teoriche</span>
+      <div class="chips modes" id="modes"></div>
+      <div class="row" data-ctl="A"></div>
+      <div data-ctl="sound"></div>
+      <div class="chips"><button class="btn" id="sweep" title="La frequenza sale piano da sotto f₁ fino oltre il quarto modo e si registra l'ampiezza">Scansione in frequenza</button><button class="btn" id="clear" title="Cancella le misure annotate e le curve delle scansioni">Cancella le misure</button></div>
+    </section>
+    <section class="sec">
+      <h2>Osservazione <span>04</span></h2>
+      <div class="row" data-ctl="look"></div>
+      <div class="row" data-ctl="dstrobe"></div>
+      <div data-ctl="travel"></div>
+      <div data-ctl="marks"></div>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>05</span></h2>
+      <div class="row" data-ctl="slow"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>06</span></h2>
+      <div class="row" data-ctl="ambient"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>La corda di Melde.</b> Il vibratore scuote un capo della corda; l'onda corre fino alla carrucola con velocità v = √(T/μ), dove T è la tensione data dal peso appeso e μ la massa per metro, e lì si riflette capovolta. Andata e ritorno si sommano: se la lunghezza L contiene un numero intero di mezze lunghezze d'onda, L = n·λ/2, a ogni giro l'onda si rinforza e la corda vibra a n ventri. Le frequenze di risonanza sono f_n = n·v/(2L): più tesa la corda, più alte; più pesante, più basse. Franz Melde ne fece le misure nel 1859.</p>
+      <p><b>Il tubo sonoro.</b> Nell'aria l'onda è longitudinale e corre a c ≈ 343 m/s. Un estremo chiuso è un nodo di spostamento (e un ventre di pressione), un estremo aperto il contrario. Con due estremi uguali le risonanze sono f_n = n·c/(2L); con uno chiuso e uno aperto L deve contenere un numero dispari di quarti d'onda e restano solo le armoniche dispari, f = (2n−1)·c/(4L). Il nodo di pressione di un'apertura sta un poco fuori dal tubo: la correzione d'estremità vale circa 0,61 volte il raggio. Nel tubo di Kundt (1866) la polvere stesa sul fondo resta ferma e liscia nei nodi di spostamento, mentre verso i ventri, dove l'aria va avanti e indietro, si solleva e ricade in sottili creste trasversali a pochi millimetri l'una dall'altra; i nodi distano λ/2, e misurandone la distanza si ricava la velocità del suono. Si usa polvere di sughero, palline di polistirolo (leggere, fanno creste alte con poco suono) o licopodio (finissimo, creste basse e fitte).</p>
+      <p><b>Lo stroboscopio.</b> Una corda che vibra a decine di hertz all'occhio appare come una scia. Con lampi brevi a frequenza f_s appena diversa da f la si vede in istanti che avanzano di poco a ogni lampo: sembra muoversi con frequenza |f − f_s|.</p>
+      <p><b>Il calcolo.</b> L'equazione delle onde con lo smorzamento è integrata alle differenze finite su un centinaio o due di punti, con il passo sotto il limite di stabilità; così si vedono anche i transitori e i battimenti quando la frequenza non è proprio quella di risonanza. La curva teorica a regime si calcola risolvendo lo stesso problema per ogni frequenza. Nella scena gli spostamenti dell'aria sono ingranditi 600 volte: nella realtà sono di pochi micrometri.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> accende e spegne il generatore · <b>A</b> annota · <b>P</b> pausa · <b>R</b> ferma tutto</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Generatore e misure">
+  <div class="bar top"><span><b id="live-title">Generatore</b><span class="wide" id="live-sub"></span></span><span class="status" id="status">spento</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">0,00</span><small id="unit">Hz</small></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="go" title="Accende e spegne il generatore (barra spaziatrice)"><i></i><span>Accendi</span></button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)" disabled>Pausa</button>
+      <button class="btn small" id="note" title="Annota frequenza e modo (A)">Annota</button>
+      <button class="btn small" id="reset" title="Spegne il generatore e ferma la corda o l'aria (R)">Riporta</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="shape" class="on" title="Forma della corda (o profili nel tubo) e ampiezza lungo la lunghezza">forma</button><button data-k="resp" title="Ampiezza in funzione della frequenza: la teoria a regime e le scansioni">risonanza</button><button data-k="time" title="Ampiezza massima negli ultimi 20 s: transitori e battimenti">nel tempo</button><button data-k="law" title="Corda: λ·f contro √(T/μ). Tubo: f contro 1/λ, la pendenza è c">leggi</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Tendo la corda…<small>Galileo Sim · Onde</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

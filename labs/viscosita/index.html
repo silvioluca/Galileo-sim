@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caduta in un fluido viscoso — Galileo Sim</title>
+<meta name="description" content="Il viscosimetro a caduta di sfera in 3D: sfere d'acciaio, vetro, alluminio, nylon in glicerina, olio di ricino, olio di silicone, miele e acqua. Velocità limite, legge di Stokes, numero di Reynolds, effetto della temperatura e delle pareti; misura la viscosità con il cronometro automatico o a mano.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: tubo di vetro pieno di fluido su un sostegno, con una sfera che cade"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Fluidi · Viscosità</p>
+    <h1>Caduta in un fluido <em>viscoso</em></h1>
+    <p class="lede">Una sfera nella glicerina accelera per un istante, poi scende a velocità costante: peso, spinta e attrito si bilanciano. Da quella velocità si misura la viscosità.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Fluido <span>01</span></h2>
+      <div class="row" data-ctl="fluid"></div>
+      <div class="row" data-ctl="conc"></div>
+      <div class="row" data-ctl="T"></div>
+      <p class="help" id="fluid-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Sfera <span>02</span></h2>
+      <div class="row" data-ctl="ball"></div>
+      <div class="row" data-ctl="d"></div>
+      <p class="help" id="ball-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Tubo e misura <span>03</span></h2>
+      <div class="row" data-ctl="D"></div>
+      <div class="row" data-ctl="h1"></div>
+      <div class="row" data-ctl="h2"></div>
+      <div class="row" data-ctl="timer"></div>
+      <div data-ctl="wall"></div>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>04</span></h2>
+      <div class="row" data-ctl="speed"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>05</span></h2>
+      <div data-ctl="strobe"></div>
+      <div data-ctl="forces"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Le forze.</b> Sulla sfera agiscono il peso, la spinta di Archimede e la resistenza del fluido. Mentre accelera trascina con sé anche un po' di fluido: la sua inerzia cresce della metà della massa di fluido spostato (massa aggiunta). Quando la resistenza bilancia il peso apparente la velocità resta costante: è la velocità limite.</p>
+      <p><b>La resistenza.</b> A velocità basse vale la legge di Stokes, F = 6π·η·r·v. Quando il numero di Reynolds Re = ρ·v·d/η cresce, la scia conta sempre di più: la simulazione usa la curva standard della sfera (Clift, Grace e Weber), che per Re piccoli tende alla correzione di Oseen e per Re di migliaia a una resistenza quasi quadratica. In acqua una sfera d'acciaio ha Re di migliaia, e la formula di Stokes sbaglia di cento volte.</p>
+      <p><b>Le pareti.</b> In un tubo stretto il fluido spostato deve risalire nello spazio fra sfera e vetro: la sfera scende più piano. La simulazione usa il fattore di Francis, ((1 − d/D)/(1 − 0,475·d/D))⁴, che si può anche applicare alla misura.</p>
+      <p><b>I fluidi.</b> La viscosità della glicerina e delle sue miscele con l'acqua segue la formula di Cheng (2008), che riproduce le tabelle entro pochi percento: a 20 °C la glicerina pura vale 1,41 Pa·s, quella al 90 % 0,22 Pa·s. L'olio di ricino, il miele e l'olio di silicone seguono la legge di Andrade, con costanti tipiche; l'acqua la formula di Vogel.</p>
+      <p><b>Il calcolo.</b> Il moto è integrato con passi esponenziali, esatti per una resistenza proporzionale alla velocità: restano stabili anche quando la costante di tempo è di pochi microsecondi e la caduta dura mezz'ora.</p>
+      <p><b>La misura.</b> Due segni sul vetro delimitano il tratto di misura, lontano dalla partenza perché la sfera abbia già raggiunto la velocità limite. Il cronometro automatico dà il passaggio del centro della sfera davanti ai segni al decimillesimo di secondo; quello a mano aggiunge il tempo di reazione di chi lo preme, diverso ogni volta.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> per lasciar cadere la sfera · <b>P</b> per la pausa · <span class="do"><b>G</b> apre il grafico in grande</span></div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Cronometro e prove">
+  <div class="bar top"><span><b>Cronometro</b><span class="wide"> · tempo di caduta</span></span><span class="status" id="status">pronto</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">0,00</span><small>s</small></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico della caduta"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="drop" title="Lascia cadere la sfera (barra spaziatrice)"><i></i><span>Lascia cadere</span></button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)" disabled>Pausa</button>
+      <button class="btn small" id="clear" title="Cancella le prove e svuota il fondo del tubo">Azzera</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="v" class="on" title="Velocità in funzione del tempo">v(t)</button><button data-k="y" title="Profondità in funzione del tempo">y(t)</button><button data-k="r2" title="Velocità misurata in funzione del quadrato del raggio: la legge di Stokes">v e r²</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Riempio il tubo…<small>Galileo Sim · Fluidi</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

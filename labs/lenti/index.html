@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lenti e immagini — Galileo Sim</title>
+<meta name="description" content="Banco ottico 3D con lenti vere: biconvesse, piano-convesse, biconcave e acromatiche. Immagini reali e virtuali, punti coniugati, metodo di Bessel, lente d'ingrandimento, cannocchiale, aberrazione sferica e cromatica. L'immagine sullo schermo è calcolata seguendo i raggi attraverso il vetro.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: banco ottico con una lampada che illumina una F, una lente su un cavaliere e uno schermo bianco"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Ottica · Lenti</p>
+    <h1>Lenti e <em>immagini</em></h1>
+    <p class="lede">Una lampada, una lente, uno schermo. Sposta la lente e cerca l'immagine nitida: reale e capovolta, oppure virtuale, da guardare attraverso il vetro. Le lenti sono vere, con il loro spessore e i loro difetti.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Oggetto <span>01</span></h2>
+      <div class="row" data-ctl="obj"></div>
+    </section>
+    <section class="sec">
+      <h2>Lente <span>02</span></h2>
+      <div class="row" data-ctl="type1"></div>
+      <div class="row" data-ctl="f1"></div>
+      <div data-ctl="flip1"></div>
+      <div class="row" data-ctl="x1"></div>
+      <div class="row" data-ctl="iris"></div>
+    </section>
+    <section class="sec">
+      <h2>Seconda lente <span>03</span></h2>
+      <div data-ctl="lens2"></div>
+      <div class="row" data-ctl="type2" data-l2></div>
+      <div class="row" data-ctl="f2" data-l2></div>
+      <div data-ctl="flip2" data-l2></div>
+      <div class="row" data-ctl="x2" data-l2></div>
+    </section>
+    <section class="sec">
+      <h2>Schermo <span>04</span></h2>
+      <div data-ctl="screen"></div>
+      <div class="row" data-ctl="xs"></div>
+      <div class="chips"><button class="btn" id="focus-panel" title="Porta lo schermo dove l'immagine è più nitida (M)">Metti a fuoco</button></div>
+    </section>
+    <section class="sec">
+      <h2>Osservazione <span>05</span></h2>
+      <div class="row" data-ctl="rays"></div>
+      <p class="help">Trascina la lente o lo schermo lungo la rotaia. <b>A</b> annota p e q, <b>M</b> mette a fuoco.</p>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>06</span></h2>
+      <div class="row" data-ctl="ambient"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Lenti vere.</b> Ogni lente ha superfici sferiche, uno spessore e un vetro: crown BK7, e per l'acromatica anche flint F2. I raggi di curvatura sono calcolati perché la focale vera, a lente spessa, sia quella scelta. L'indice del vetro cambia con il colore (formula di Cauchy dal numero di Abbe), per cui il blu va a fuoco un po' prima del rosso.</p>
+      <p><b>L'immagine sullo schermo.</b> Per ogni punto dello schermo si seguono all'indietro migliaia di raggi, che passano per tutta l'apertura e attraversano ogni superficie con la legge di Snell fino all'oggetto, in tre colori. La luce che arriva è la somma di quelle che portano. Così l'immagine è nitida solo dove deve, si sfoca davanti e dietro, perde luce quando la si ingrandisce o si chiude il diaframma e mostra le aberrazioni sferica e cromatica. Il calcolo si affina un fotogramma dopo l'altro.</p>
+      <p><b>Attraverso il vetro.</b> Anche la lente nella scena segue i raggi, dall'occhio attraverso il vetro fino all'oggetto, allo schermo, alla rotaia o al pavimento. Per questo, guardandoci dentro, si vede l'immagine virtuale ingrandita, o quella capovolta che si forma nell'aria.</p>
+      <p><b>Formule e raggi principali.</b> I numeri della fascia in basso e i raggi principali usano la lente sottile: 1/p + 1/q = 1/f, m = −q/p. La posizione vera dell'immagine nitida è un poco diversa, per lo spessore della lente e per l'aberrazione sferica: i raggi «veri» e le misure annotate lo mostrano.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <span class="do">trascina lente e schermo lungo la rotaia</span> · <b>A</b> annota · <b>M</b> mette a fuoco</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Lo schermo">
+  <div class="bar top"><span><b>Schermo</b><span class="wide"> · l'immagine</span></span><span class="status" id="status">–</span></div>
+  <div id="photo" title="Clic per ingrandire">
+    <div class="scalebar"><i id="scalebar-line"></i><span id="scalebar-text"></span></div>
+    <div class="cursor" id="cursor"></div>
+    <div class="note" id="photo-note" hidden></div>
+  </div>
+  <div class="bar exif"><span id="ex-a"></span><span id="ex-b"></span><span id="ex-c"></span></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="btn small" id="note" title="Annota p e q (A)">Annota</button>
+      <button class="btn small" id="focus" title="Porta lo schermo dove l'immagine è più nitida (M)">Metti a fuoco</button>
+      <button class="btn small" id="clear" title="Cancella le misure">Cancella</button>
+      <div class="zoom"><button class="btn small" id="zoom-out" title="Allarga">−</button><button class="btn small" id="zoom-all" title="Zoom automatico sull'immagine (acceso: nero)">1×</button><button class="btn small" id="zoom-in" title="Ingrandisci">+</button></div>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="inv" class="on" title="1/q in funzione di 1/p: una retta che taglia gli assi in 1/f">1/p e 1/q</button><button data-k="pq" title="q in funzione di p: un'iperbole con gli asintoti in f">q e p</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Allineo il banco ottico…<small>Galileo Sim · Ottica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

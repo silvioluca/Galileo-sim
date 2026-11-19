@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La macchina fotografica — Galileo Sim</title>
+<meta name="description" content="Laboratorio interattivo 3D: i raggi di luce attraversano un obiettivo reale e formano l'immagine sul sensore. Diaframma, messa a fuoco, tempo di posa e ISO simulati fisicamente.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: fotocamera in spaccato, soggetti e raggi luminosi"></canvas>
+<div id="labels" aria-hidden="true"></div>
+
+<div id="scrim" aria-hidden="true"></div>
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Ottica · Geometrica</p>
+    <h1>La macchina <em>fotografica</em></h1>
+    <p class="lede">Segui la luce: dal soggetto, attraverso le lenti, fino all'immagine sul sensore.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Obiettivo <span>01</span></h2>
+      <div class="row" data-ctl="lensType"></div>
+      <div class="row" data-ctl="focal"></div>
+      <div class="row" data-ctl="aperture"></div>
+      <div class="row" data-ctl="focus"></div>
+    </section>
+    <section class="sec">
+      <h2>Esposizione <span>02</span></h2>
+      <div class="row" data-ctl="shutter"></div>
+      <div class="row" data-ctl="iso"></div>
+      <div class="meter">
+        <div class="meter-scale"><div class="needle" id="needle"></div><div class="ticks" id="ticks"></div></div>
+        <div class="meter-labels"><span>−3</span><span>−2</span><span>−1</span><span>0</span><span>+1</span><span>+2</span><span>+3</span></div>
+        <div class="meter-read"><span>Esposimetro <b id="ev">0,0 EV</b></span><button class="btn small" id="auto-exp">Auto</button></div>
+      </div>
+    </section>
+    <section class="sec">
+      <h2>Scena <span>03</span></h2>
+      <div class="row" data-ctl="subjectDist"></div>
+      <div data-ctl="swing"></div>
+    </section>
+    <section class="sec">
+      <h2>Raggi di luce <span>04</span></h2>
+      <div data-ctl="rays"></div>
+      <div class="row" data-ctl="rayMode"></div>
+      <div class="row" data-ctl="rayDensity"></div>
+      <div data-ctl="pulses"></div>
+      <div data-ctl="blocked"></div>
+      <div data-ctl="dispersion"></div>
+      <div class="chips" style="margin-top:10px"><button class="btn" id="reset-emitters">Sorgenti iniziali</button><button class="btn" id="clear-emitters">Rimuovi tutte</button></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>05</span></h2>
+      <div data-ctl="cutaway"></div>
+      <div data-ctl="dof"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Raggi.</b> Ogni raggio è tracciato con la legge di Snell in forma vettoriale attraverso le superfici sferiche di un vero schema ottico (doppio Gauss a 6 lenti, vetri SK2, SK16 e F5). Gli impulsi avanzano secondo il cammino ottico: nel vetro rallentano di un fattore <i>n</i> e, partiti insieme dallo stesso punto, arrivano insieme sull'immagine (principio di Fermat).</p>
+      <p><b>Fotografia.</b> La scena è ripresa centinaia di volte da punti diversi della pupilla d'ingresso e in istanti diversi del tempo di posa; la media riproduce profondità di campo, forma dello sfocato e mosso. Per la lente singola ogni zona della pupilla usa il proprio fuoco reale, per ciascun colore: aberrazione sferica e cromatica.</p>
+      <p><b>Sensore.</b> L'esposizione segue <i>t · ISO / N²</i> con il numero f efficace; si aggiungono vignettatura cos⁴, diffrazione (disco di Airy) e rumore fotonico e di lettura.</p>
+      <p><b>Limiti.</b> Le aberrazioni fuori asse (coma, astigmatismo, distorsione) compaiono nei raggi ma non nella fotografia; il pendolo oscilla in regime di piccole ampiezze.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>tasto destro</b> per spostare · <span class="do">clic su un oggetto: i raggi partono da lì</span></div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo · campioni accumulati nella fotografia"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Fotografia ripresa dal sensore">
+  <div class="bar top"><span><b>Live view</b><span class="wide"> · ciò che vede il sensore</span></span><span class="status" id="status">–</span></div>
+  <div id="photo" title="Clic per ingrandire"><div class="flash" id="flash"></div></div>
+  <div class="bar">
+    <div class="exif" id="exif"></div>
+    <div class="actions">
+      <button class="shutter-btn" id="shoot" title="Scatta una fotografia (barra spaziatrice)"><i></i>Scatta</button>
+      <button class="btn small" id="pause" title="Ferma il pendolo e gli impulsi di luce, e riprendi (P)">Pausa</button>
+      <div class="strip" id="strip"><span class="hint">Le fotografie scattate<br>compaiono qui</span></div>
+    </div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+
+<div id="lightbox"><figure><img alt="Fotografia scattata"><figcaption><span id="lb-cap"></span><a id="lb-dl" download="galileo-foto.jpg">Scarica la foto</a></figcaption></figure></div>
+<div id="boot"><p>Monto l'obiettivo…<small>Galileo Sim · Ottica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

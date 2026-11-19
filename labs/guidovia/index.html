@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La guidovia — Galileo Sim</title>
+<meta name="description" content="La guidovia a cuscino d'aria in 3D: moto rettilineo uniforme e uniformemente accelerato, piano inclinato, pesetto e carrucola, urti elastici e anelastici, esplosioni. Fotocellule con cronometro digitale, grafici di posizione, velocità, accelerazione, quantità di moto ed energia.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: guidovia a cuscino d'aria con carrelli, fotocellule e carrucola"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Meccanica · Dinamica e urti</p>
+    <h1>La <em>guidovia</em></h1>
+    <p class="lede">Una rotaia che soffia aria: i carrelli galleggiano quasi senza attrito. Moto uniforme, moto accelerato, urti.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Guidovia <span>01</span></h2>
+      <div data-ctl="air"></div>
+      <div data-ctl="bands"></div>
+      <div class="row" data-ctl="shim"></div>
+      <p class="help" id="tilt-note" hidden></p>
+    </section>
+    <section class="sec">
+      <h2>Carrelli <span>02</span></h2>
+      <div class="row" data-ctl="n"></div>
+      <div class="row" data-ctl="mA"></div>
+      <div class="row" data-ctl="vA"></div>
+      <div class="row" data-ctl="xA"></div>
+      <div class="row" data-ctl="mB"></div>
+      <div class="row" data-ctl="vB"></div>
+      <div class="row" data-ctl="xB"></div>
+    </section>
+    <section class="sec" id="sec-hit">
+      <h2>Urto <span>03</span></h2>
+      <div class="row" data-ctl="bumper"></div>
+      <div data-ctl="blast"></div>
+      <p class="help" id="hit-note" hidden></p>
+    </section>
+    <section class="sec">
+      <h2>Trazione <span>04</span></h2>
+      <div data-ctl="pull"></div>
+      <div class="row" data-ctl="mh"></div>
+      <div class="row" data-ctl="drop"></div>
+      <p class="help" id="pull-note" hidden></p>
+    </section>
+    <section class="sec">
+      <h2>Fotocellule <span>05</span></h2>
+      <div class="row" data-ctl="gates"></div>
+      <div class="row" data-ctl="g1"></div>
+      <div class="row" data-ctl="gsp"></div>
+      <div class="row" data-ctl="flag"></div>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>06</span></h2>
+      <div class="row" data-ctl="slow"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>07</span></h2>
+      <div data-ctl="strobe"></div>
+      <div class="row" data-ctl="strobeHz"></div>
+      <div data-ctl="vVec"></div>
+      <div data-ctl="pVec"></div>
+      <div data-ctl="fVec"></div>
+      <div data-ctl="cm"></div>
+      <div data-ctl="keep"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Equazioni del moto.</b> Ogni carrello si muove lungo la rotaia sotto il peso (la sua parte lungo il piano, m·g·sin θ), l'attrito viscoso del cuscino d'aria e la resistenza dell'aria. Il moto è integrato con il metodo di Runge–Kutta del quarto ordine a passi di 0,25 ms: senza attriti la posizione coincide con ½·a·t² fino al nanometro.</p>
+      <p><b>Il cuscino d'aria.</b> L'aria che esce dai fori solleva il carrello di qualche decimo di millimetro: resta solo un attrito viscoso, che dimezza la velocità in quasi un minuto. Così il moto uniforme si vede davvero, e le accelerazioni misurate stanno qualche percento sotto quelle ideali. Spegnendo la soffiante il carrello appoggia sull'alluminio e l'attrito radente (coefficiente 0,22) lo ferma in pochi centimetri.</p>
+      <p><b>Gli urti.</b> I respingenti sono molle vere: durante l'urto la forza cresce e cala in qualche centesimo di secondo, e la simulazione ne misura il massimo e l'impulso, cioè l'area sotto la curva della forza. Le molle d'acciaio restituiscono il 95 % della velocità relativa, i tamponi di gomma circa il 55 %; il velcro unisce i carrelli, che proseguono insieme. In ogni urto la quantità di moto totale si conserva, salvo il piccolo freno del cuscino.</p>
+      <p><b>Fotocellule.</b> Misurano per quanto tempo la bandierina oscura il raggio: la velocità è la larghezza della bandierina divisa per quel tempo. In un moto accelerato è la velocità media durante il passaggio, cioè quella a metà del passaggio.</p>
+      <p><b>Gli elastici alle estremità.</b> Fermano i carrelli restituendo circa l'80 % della velocità. Togliendoli, il carrello batte sulla testata d'alluminio: un urto duro di pochi millesimi di secondo che ne restituisce solo il 20 %.</p>
+      <p><b>Carrucola.</b> Il filo è inestensibile e senza massa, la carrucola senza attrito né inerzia; il filo si allenta quando il pesetto tocca il tappetino, e da lì il carrello prosegue di moto uniforme.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> per partire · <b>P</b> per la pausa · <span class="do">trascina un carrello per spostarlo prima di partire</span></div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Cronometro e misure">
+  <div class="bar top"><span><b>Cronometro</b><span class="wide"> · fotocellule</span></span><span class="status" id="status">pronto</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">0,000</span><small>s</small></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico del moto"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="go" title="Parti (barra spaziatrice)"><i></i><span>Via</span></button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)" disabled>Pausa</button>
+      <button class="btn small" id="reset" title="Riporta i carrelli alla partenza (R)">Riporta</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="x" title="Posizione">x</button><button data-k="v" class="on" title="Velocità">v</button><button data-k="a" title="Accelerazione">a</button><button data-k="p" title="Quantità di moto">p</button><button data-k="E" title="Energia cinetica">E</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Accendo la soffiante…<small>Galileo Sim · Meccanica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

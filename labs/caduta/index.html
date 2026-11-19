@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il moto di caduta — Galileo Sim</title>
+<meta name="description" content="Caduta dei gravi in 3D: pallina di massa variabile, piuma e martello lasciati cadere da un'asta graduata, con o senza aria, su sette pianeti, anche con velocità iniziale. Cronometro al millesimo.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: asta graduata, oggetti in caduta e cronometro"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Meccanica · Cinematica</p>
+    <h1>Il moto di <em>caduta</em></h1>
+    <p class="lede">Lascia cadere insieme oggetti diversi e misura quanto ci mettono ad arrivare a terra.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Pianeta <span>01</span></h2>
+      <div data-ctl="compare"></div>
+      <div class="row" data-ctl="planet"></div>
+      <div class="row seg" id="planets-multi" role="group" aria-label="Pianeti a confronto" hidden></div>
+      <p class="help" id="planet-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Oggetti <span>02</span></h2>
+      <div data-ctl="ballA"></div>
+      <div class="row" data-ctl="massA" data-obj="ballA"></div>
+      <div data-ctl="ballB"></div>
+      <div class="row" data-ctl="massB" data-obj="ballB"></div>
+      <div data-ctl="feather"></div>
+      <div data-ctl="hammer"></div>
+    </section>
+    <section class="sec">
+      <h2>Partenza <span>03</span></h2>
+      <div class="row" data-ctl="h"></div>
+      <div class="row" data-ctl="v0"></div>
+      <div class="row" data-ctl="angle"></div>
+    </section>
+    <section class="sec">
+      <h2>Aria <span>04</span></h2>
+      <div data-ctl="air"></div>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>05</span></h2>
+      <div class="row" data-ctl="slow"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>06</span></h2>
+      <div data-ctl="strobe"></div>
+      <div class="row" data-ctl="strobeHz"></div>
+      <div data-ctl="trails"></div>
+      <div data-ctl="vectors"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Equazioni del moto.</b> Su ogni oggetto agiscono il peso, la spinta di Archimede e la resistenza dell'aria, proporzionale al quadrato della velocità: F = ½·ρ·C<sub>d</sub>·A·v². Il moto è integrato con il metodo di Runge–Kutta del quarto ordine; l'istante d'impatto è cercato per bisezione dentro l'ultimo passo. Nel vuoto e nella caduta verticale con l'aria i tempi coincidono con le soluzioni esatte fino all'ottava cifra.</p>
+      <p><b>Oggetti.</b> Pallina di 4 cm (il materiale dipende dalla massa: da celluloide a tungsteno), piuma di falco da mezzo grammo, martello da geologo in alluminio da 1,32 kg come quello dell'Apollo 15.</p>
+      <p><b>Pianeti.</b> Gravità e densità dell'atmosfera al suolo; per Giove, che non ha una superficie, alla quota in cui la pressione è di 1 bar.</p>
+      <p><b>Limiti.</b> Il coefficiente di resistenza è costante; la piuma oscilla solo nell'aspetto, non nella traiettoria; gli oggetti non rimbalzano e non si urtano fra loro.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> per lasciar cadere · <b>P</b> per la pausa · <span class="do">trascina il braccio sull'asta per cambiare altezza</span></div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Cronometro">
+  <div class="bar top"><span><b>Cronometro</b><span class="wide"> · tempo di caduta</span></span><span class="status" id="status">pronto</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">0,000</span><small>s</small></div>
+    <div class="clock-side"><span id="slowmo"></span><span id="vacuum"></span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico del moto"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="drop" title="Lascia cadere (barra spaziatrice)"><i></i><span>Lascia cadere</span></button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)" disabled>Pausa</button>
+      <button class="btn small" id="reset" title="Riporta gli oggetti in alto (R)">Riposiziona</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="y" class="on">altezza</button><button data-k="v">velocità</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Monto l'asta graduata…<small>Galileo Sim · Meccanica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

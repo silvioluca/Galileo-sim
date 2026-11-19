@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il moto di rotolamento — Galileo Sim</title>
+<meta name="description" content="Il moto di rotolamento in 3D: sfere piene e cave, cilindro, anello, una ruota su binari e un pattino senza attrito, in piano o su un piano inclinato, fino a cinque insieme. Momento d'inerzia, strisciamento, cicloidi e traiettorie di un punto a distanza r dall'asse.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: una tavola di legno larga, a cinque corsie, incernierata su una base; i corpi sono pronti in cima, davanti ai lanciatori"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Meccanica · Rotazione</p>
+    <h1>Il moto di <em>rotolamento</em></h1>
+    <p class="lede">Un corpo che rotola avanza e gira insieme. Il punto che tocca il piano è fermo, quello in cima va al doppio del centro; e più la massa sta lontana dall'asse, più il corpo è lento a partire.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Piano <span>01</span></h2>
+      <div class="row" data-ctl="angle"></div>
+    </section>
+    <section class="sec">
+      <h2>Corpi <span>02</span></h2>
+      <div class="bodies" id="bodies"></div>
+      <span class="seg-label" id="add-label">Aggiungi un corpo</span>
+      <div class="chips add" id="add-body"></div>
+      <p class="help" id="body-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Lancio <span>03</span></h2>
+      <div class="row" data-ctl="v0"></div>
+      <div class="row" data-ctl="spin"></div>
+      <p class="help" id="launch-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Il punto <span>04</span></h2>
+      <div class="row" data-ctl="rp"></div>
+      <div data-ctl="trail"></div>
+      <div data-ctl="vel"></div>
+      <p class="help" id="point-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>05</span></h2>
+      <div class="row" data-ctl="slow"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>06</span></h2>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Avanzare e girare.</b> Un corpo che rotola senza strisciare avanza di 2π·r a ogni giro: v = ω·r. Ogni suo punto ha la velocità del centro più quella della rotazione, v + ω × (P − C): il punto di contatto è fermo, quello in cima va a 2·v, e in ogni istante il corpo gira attorno al punto di contatto.</p>
+      <p><b>Le traiettorie.</b> Il punto del bordo disegna una cicloide: archi lunghi 2π·r e alti 2·r, con una cuspide (velocità nulla) a ogni contatto. Un punto più vicino all'asse disegna una cicloide accorciata, senza cuspidi; un punto più lontano dell'appoggio, come sul disco della ruota che rotola sul suo asse sottile, una cicloide allungata, con i cappi: per un attimo va all'indietro.</p>
+      <p><b>Il momento d'inerzia.</b> I = k·m·r², con r il raggio su cui il corpo rotola: k vale ⅖ per la sfera piena, ½ per il cilindro, ⅔ per la sfera cava, circa 0,9 per l'anello sottile. Sul piano inclinato l'energia potenziale va in parte nella rotazione, k/(1+k), e l'accelerazione è a = g·sin α/(1+k): massa e raggio non contano, conta solo k. La ruota sui binari ha k ≈ 63 (il disco grande gira su un asse di 5 mm) e scende pianissimo.</p>
+      <p><b>L'attrito.</b> A far girare il corpo è l'attrito statico: ne serve k/(1+k) della forza lungo il piano. Se il piano è troppo ripido, tan α > μs·(1+k)/k, non basta e il corpo striscia, frenato dall'attrito dinamico. Anche un corpo lanciato strisciando, o con una rotazione all'indietro, striscia finché v = ω·r: poi rotola a v = (v₀ + k·r·ω₀)/(1+k).</p>
+      <p><b>Il calcolo.</b> Ogni corpo è integrato a passi di mezzo millisecondo con attrito statico e dinamico (μs 0,3, μd 0,2 sul legno), un piccolo attrito di rotolamento e la resistenza dell'aria. In fondo alla corsa e sul lanciatore i fermi sono imbottiti, col velcro: il corpo che li tocca resta lì. Le fotocellule del traguardo, a 130 cm dalla partenza, segnano il passaggio del centro.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> per partire · <b>P</b> pausa · <b>R</b> riporta in partenza · <span class="do">clic su un corpo per seguirlo · trascina la tavola per inclinarla</span></div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Cronometro e misure">
+  <div class="bar top"><span><b id="live-title">Cronometro</b><span class="wide" id="live-sub"></span></span><span class="status" id="status">pronti</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">0,000</span><small id="unit">s</small></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico del moto"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="go" title="I pioli rientrano e i corpi partono (barra spaziatrice)"><i></i><span>Via</span></button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)" disabled>Pausa</button>
+      <button class="btn small" id="reset" title="Riporta i corpi in partenza (R)">Riporta</button>
+      <button class="btn small" id="clear" title="Cancella i punti misurati del grafico «a e k»">Cancella</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="traj" class="on" title="Traiettoria del punto, in vera forma, attorno al corpo che segui">traiettoria</button><button data-k="s" title="Spazio percorso dal centro in funzione del tempo">s(t)</button><button data-k="v" title="Velocità del centro (continua) e ω·r (tratteggiata): coincidono quando rotola senza strisciare">v e ω·r</button><button data-k="k" title="Accelerazione in unità di g·sin α in funzione di k = I/(m·r²)">a e k</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Preparo le corsie…<small>Galileo Sim · Meccanica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La spinta di Archimede — Galileo Sim</title>
+<meta name="description" content="La legge di Archimede in 3D: un dinamometro a molla, corpi di nove materiali, sei liquidi dall'alcol al mercurio. Il becher sulla bilancia, il vaso a sfioro, il cilindro di Archimede con il secchiello; corpi che affondano, galleggiano e si inclinano.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: un dinamometro a molla su un sostegno regge un corpo sopra un recipiente di liquido"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Fluidi · Idrostatica</p>
+    <h1>La spinta di <em>Archimede</em></h1>
+    <p class="lede">Un corpo immerso riceve una spinta verso l'alto uguale al peso del liquido che sposta. Il dinamometro la misura, la bilancia la sente, il vaso a sfioro la versa.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Apparato <span>01</span></h2>
+      <div class="row" data-ctl="app"></div>
+      <p class="help" id="app-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Corpo <span>02</span></h2>
+      <div class="row" data-ctl="material"></div>
+      <div class="row" data-ctl="shape"></div>
+      <div class="row" data-ctl="V"></div>
+      <p class="help" id="body-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Liquido <span>03</span></h2>
+      <div class="row" data-ctl="liquid"></div>
+      <div class="row" data-ctl="salt"></div>
+      <p class="help" id="liq-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Misura <span>04</span></h2>
+      <div class="row" data-ctl="desc"></div>
+      <div class="row" data-ctl="grav"></div>
+      <div class="chips"><button class="btn" id="tare" title="Azzera il display della bilancia con quello che c'è sopra">Tara della bilancia</button></div>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>05</span></h2>
+      <div class="row" data-ctl="slow"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>06</span></h2>
+      <div data-ctl="forces"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>La spinta.</b> Il liquido preme su tutta la superficie del corpo, e preme di più dove è più profondo: la somma delle pressioni è una forza verso l'alto uguale al peso del liquido che occuperebbe il volume immerso, F = ρ·g·V. Si applica nel baricentro di quel volume, il centro di spinta (la freccia blu).</p>
+      <p><b>Il dinamometro.</b> Una molla dentro un tubo trasparente: l'indice rosso scende di 10 cm a fondo scala. La portata (da 1 a 50 N, con il colore dei tappi) è scelta per il corpo appeso. La molla oscilla un poco quando il carico cambia, come quella vera; il filo tira ma non spinge, e se il corpo galleggia si allenta.</p>
+      <p><b>Il liquido.</b> Il volume del liquido non cambia: il livello sale di quanto vale il volume immerso diviso per la sezione del recipiente. Dal vaso a sfioro il liquido in più esce dal beccuccio come da uno stramazzo, finché la tensione superficiale lo trattiene; per questo il vaso si prepara riempiendolo finché smette di gocciolare.</p>
+      <p><b>La bilancia.</b> Il liquido spinge il corpo verso l'alto, e il corpo spinge il liquido verso il basso con la stessa forza: la bilancia sotto il becher segna in più proprio la spinta. Quando il corpo cade o rimbalza conta anche la resistenza del liquido.</p>
+      <p><b>Galleggiare.</b> Un corpo libero affonda finché sposta un peso di liquido uguale al suo: la parte immersa è il rapporto fra le densità. Il suo assetto è quello di energia minima: un cubo di legno di pino galleggia di spigolo, uno di ghiaccio dritto, un cilindro di legno si corica. Finché è legato al filo, il corpo resta dritto.</p>
+      <p><b>Il calcolo.</b> Per un corpo dritto il volume immerso è esatto (cilindro, cubo, calotta sferica). Per un corpo inclinato è integrato su una griglia di 12 000 celle della sua sezione, una volta per forma. Il moto, con la massa aggiunta del liquido, l'attrito e le onde, è integrato a passi di 0,4 ms.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> immerge o solleva · <b>P</b> pausa · <b>T</b> taglia il filo · <span class="do">trascina il dinamometro in su o in giù</span></div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Dinamometro e misure">
+  <div class="bar top"><span><b>Dinamometro</b><span class="wide" id="dyn-range"></span></span><span class="status" id="status">in aria</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">0,00</span><small>N</small></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico delle forze"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="immerse" title="Immergi il corpo o sollevalo (barra spaziatrice)"><i></i><span>Immergi</span></button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)" disabled>Pausa</button>
+      <button class="btn small" id="cut" title="Taglia il filo (T)">Taglia</button>
+      <button class="btn small" id="clear" title="Cancella le misure, riprepara il recipiente e fa la tara">Azzera</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="depth" class="on" title="Lettura del dinamometro e spinta in funzione della profondità del corpo">profondità</button><button data-k="time" title="Dinamometro, spinta e bilancia negli ultimi secondi">tempo</button><button data-k="law" title="Spinta misurata in funzione della massa di liquido spostato: la retta ha pendenza g">massa spostata</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Riempio il becher…<small>Galileo Sim · Fluidi</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

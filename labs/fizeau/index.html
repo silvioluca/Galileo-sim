@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L'esperimento di Fizeau — Galileo Sim</title>
+<meta name="description" content="L'esperimento di Fizeau del 1849 in 3D: una ruota dentata da 720 denti, una lampada, uno specchio a 8,6 km. Fai girare la ruota finché la luce sparisce e misura la velocità della luce; al rallentatore guarda gli impulsi andare e tornare. Anche in versione moderna, con laser verde, telecamera e tachimetro laser.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: l'apparato di Fizeau con la ruota dentata a Suresnes e lo specchio a Montmartre"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Ottica · Velocità della luce</p>
+    <h1>L'esperimento di <em>Fizeau</em></h1>
+    <p class="lede">Parigi, 1849. Una ruota dentata taglia la luce in lampi; uno specchio a 8,6 km la rimanda indietro. Se al ritorno trova un dente, la luce sparisce: e da quella velocità si ricava la velocità della luce.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Apparato <span>01</span></h2>
+      <div class="row" data-ctl="app"></div>
+      <p class="help" id="app-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Ruota dentata <span>02</span></h2>
+      <div class="row" data-ctl="f"></div>
+      <div class="row" data-ctl="N"></div>
+      <div class="row" data-ctl="spot"></div>
+      <p class="help" id="wheel-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Percorso <span>03</span></h2>
+      <div class="row" data-ctl="d"></div>
+      <div data-ctl="air"></div>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>04</span></h2>
+      <div class="row" data-ctl="slow"></div>
+      <p class="help" id="time-note"></p>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>05</span></h2>
+      <div class="row" data-ctl="ambient"></div>
+      <div data-ctl="beam"></div>
+      <div data-ctl="theory"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>L'apparato.</b> La luce della lampada, raccolta dal condensatore, si riflette su una lamina di vetro inclinata e si concentra in un punto sul bordo della ruota dentata. Se lì c'è un vano passa, l'obiettivo la rende parallela e la manda fino a Montmartre, dove un secondo obiettivo la concentra su uno specchio che la rimanda indietro per la stessa strada. Al ritorno riattraversa il bordo della ruota e la lamina, e arriva all'oculare.</p>
+      <p><b>L'eclissi.</b> Andata e ritorno su 8 633 m durano τ = 2d/c ≈ 57,6 µs. Se in quel tempo la ruota avanza di mezzo dente, la luce che era passata in un vano torna e trova un dente: l'osservatore non vede nulla. Con N denti e f giri al secondo, la ruota avanza di N·f·τ denti; la prima eclissi è a N·f·τ = ½, cioè c = 4·d·N·f. Fizeau la trovò a 12,6 giri al secondo e ottenne 313 000 km/s.</p>
+      <p><b>La luce che torna.</b> Con la ruota che gira, all'oculare arriva la media nel tempo del prodotto fra il passaggio all'andata e quello al ritorno, sfasati di N·f·τ denti. La simulazione la calcola in serie di Fourier per un'immagine della sorgente gaussiana sul bordo della ruota: con un'immagine puntiforme la curva è a denti di sega, con un'immagine larga i minimi non arrivano mai al buio.</p>
+      <p><b>Il rallentatore.</b> A 10 µs al secondo la luce percorre gli 8,6 km in poco meno di un secondo. Il fascio è disegnato con uno shader che calcola, per ogni suo punto, in quale istante quella luce aveva attraversato la ruota e se lì c'era un vano: così si vedono gli impulsi partire, arrivare allo specchio e tornare. Nella scena la distanza è accorciata e il ritorno è disegnato sotto l'andata, ma nella realtà i due fasci coincidono.</p>
+      <p><b>La versione moderna.</b> Le ricostruzioni di oggi usano un laser verde, un cubo divisore di fascio e una telecamera al posto dell'occhio; la ruota è un disco d'alluminio di 40 cm mosso da un motore elettrico, e un tachimetro laser legge un adesivo riflettente sulla ruota, dando la velocità al millesimo di giro al secondo. Invece di giudicare a occhio il buio, il computer cerca il minimo del segnale della telecamera: la velocità della luce esce con un errore di pochi centomillesimi. La fisica è la stessa: conta solo il tempo che la ruota impiega ad avanzare di mezzo dente.</p>
+      <p><b>Limiti.</b> Niente turbolenza dell'aria né luce diffusa dai denti; i denti hanno la stessa larghezza dei vani.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> per la scansione · <b>P</b> per la pausa · <b>M</b> per segnare un'eclissi</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Oculare e misure">
+  <div class="bar top"><span id="live-title"><b>Oculare</b><span class="wide"> · ciò che vede Fizeau</span></span><span class="status" id="status">luce</span></div>
+  <canvas id="eye" width="768" height="250" aria-label="Il campo dell'oculare"></canvas>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">0,00</span><small>giri/s</small></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="270" aria-label="Luce all'oculare in funzione della velocità della ruota"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="scan" title="Fa salire la velocità della ruota e registra la luce (barra spaziatrice)"><i></i><span>Scansione</span></button>
+      <button class="btn small" id="pause" title="Pausa (P)" aria-label="Pausa" disabled></button>
+      <button class="btn small" id="mark" title="Questa velocità è un'eclissi: ricava c (M)">Segna eclissi</button>
+      <button class="btn small" id="clear" title="Cancella punti e misure">Azzera</button>
+    </div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Accendo la lampada…<small>Galileo Sim · Ottica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interferenza e diffrazione — Galileo Sim</title>
+<meta name="description" content="Banco ottico 3D: laser o luce bianca attraverso fenditure, fori, ostacoli, reticoli e lenti. La figura sullo schermo è calcolata con l'ottica ondulatoria, dal campo vicino a quello lontano.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: banco ottico con sorgente, elemento diffrangente e schermo"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Ottica · Ondulatoria</p>
+    <h1>Interferenza e <em>diffrazione</em></h1>
+    <p class="lede">Un banco ottico vero: metti qualcosa davanti alla luce e guarda cosa arriva sullo schermo.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <section class="sec">
+      <h2>Sorgente <span>01</span></h2>
+      <div class="row" data-ctl="source"></div>
+      <div class="row spectrum" data-ctl="lambda"></div>
+      <div class="row" data-ctl="beam"></div>
+    </section>
+    <section class="sec">
+      <h2>Elemento sul banco <span>02</span></h2>
+      <div class="row" data-ctl="element"></div>
+      <div class="row" data-ctl="count" data-for="slits holes"></div>
+      <div class="row" data-ctl="obstacle" data-for="obstacle"></div>
+      <div class="row" data-ctl="slitA" data-for="slits"></div>
+      <div class="row" data-ctl="slitD" data-for="slits" data-multi></div>
+      <div class="row" data-ctl="holeA" data-for="holes"></div>
+      <div class="row" data-ctl="holeD" data-for="holes" data-multi></div>
+      <div class="row" data-ctl="wireA" data-for="wire"></div>
+      <div class="row" data-ctl="discA" data-for="disc"></div>
+      <div class="row" data-ctl="lines" data-for="grating"></div>
+      <div class="row" data-ctl="xMask" data-for="slits holes wire disc grating"></div>
+      <figure class="inset" data-for="slits holes wire disc grating">
+        <canvas id="mask-view" width="584" height="220"></canvas>
+        <figcaption><span>L'elemento al microscopio</span><span id="mask-scale"></span></figcaption>
+      </figure>
+    </section>
+    <section class="sec">
+      <h2>Lente <span>03</span></h2>
+      <div data-ctl="lensOn"></div>
+      <div class="row" data-ctl="focal" data-lens></div>
+      <div class="row" data-ctl="xLens" data-lens></div>
+    </section>
+    <section class="sec">
+      <h2>Schermo <span>04</span></h2>
+      <div class="row" data-ctl="xScreen"></div>
+      <div class="row" data-ctl="ev"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>05</span></h2>
+      <div class="row" data-ctl="ambient"></div>
+      <div data-ctl="sheet"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Onde, non raggi.</b> La luce è un'onda scalare in approssimazione parassiale. Dal piano dell'elemento allo schermo, tratti liberi e lenti sono riassunti da una matrice ABCD e il campo si ottiene con l'integrale di Collins: lo stesso calcolo dà la diffrazione di Fresnel da vicino, quella di Fraunhofer da lontano e il piano focale di una lente.</p>
+      <p><b>Fenditure, fili, reticoli.</b> Il campo è separabile: lungo la direzione delle fenditure si usa una trasformata di Fourier veloce su decine di migliaia di campioni; nell'altra il fascio gaussiano prosegue indisturbato.</p>
+      <p><b>Fori e dischi.</b> Integrale radiale con la funzione di Bessel J₀. Più fori si sommano in ampiezza e fase; il disco si ottiene dal principio di Babinet, e al centro della sua ombra compare la macchia di Arago.</p>
+      <p><b>Luce bianca.</b> Lo stesso calcolo è ripetuto per decine di lunghezze d'onda tra 400 e 700 nm, poi le funzioni colorimetriche CIE trasformano lo spettro in colore.</p>
+      <p><b>Limiti.</b> Niente polarizzazione; le lenti sono sottili e più grandi del fascio; il proiettore è trattato come un fascio bianco collimato e coerente nello spazio; la luminosità della figura è normalizzata, come con una fotocamera in esposizione automatica.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>tasto destro</b> per spostare · <span class="do">trascina lente, elemento o schermo lungo la rotaia</span></div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Figura sullo schermo">
+  <div class="bar top"><span><b>Schermo</b><span class="wide"> · la figura</span></span><span class="status" id="status">–</span></div>
+  <div id="photo" title="Clic per ingrandire">
+    <div class="scalebar"><i id="scalebar-line"></i><span id="scalebar-text"></span></div>
+    <div class="cursor" id="cursor"></div>
+  </div>
+  <canvas id="plot" width="768" height="176" aria-label="Profilo d'intensità lungo l'asse orizzontale"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <div class="zoom">
+        <button class="btn small" id="zoom-out" title="Allarga la vista">−</button>
+        <button class="btn small" id="zoom-auto" title="Adatta la vista alla figura">auto</button>
+        <button class="btn small" id="zoom-in" title="Ingrandisci">+</button>
+      </div>
+      <span class="viewinfo" id="viewinfo"></span>
+      <button class="btn small" id="plot-log" title="Scala logaritmica del profilo">log</button>
+    </div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+
+<div id="lightbox"><figure><img alt="Figura sullo schermo"><figcaption><span id="lb-cap"></span><a id="lb-dl" download="galileo-figura.jpg">Scarica l'immagine</a></figcaption></figure></div>
+<div id="boot"><p>Allineo il banco ottico…<small>Galileo Sim · Ottica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il pendolo — Galileo Sim</title>
+<meta name="description" content="Il pendolo in 3D, semplice e fisico: una sfera appesa a un filo (piombo, ottone, acciaio, legno, sughero) oppure un'asta forata, un disco, un anello. Isocronismo, periodo e lunghezza, misura di g, grandi ampiezze, pendolo equivalente e centro di oscillazione, con fotocellula e cronometro.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: un sostegno alto con un braccio da cui pende il pendolo, un goniometro trasparente dietro il perno e una fotocellula a forcella nel punto più basso"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Meccanica · Oscillazioni</p>
+    <h1>Il <em>pendolo</em></h1>
+    <p class="lede">Una sfera su un filo o un corpo rigido su un perno: il peso lo riporta in basso, l'inerzia lo fa andare oltre. Per piccole oscillazioni il periodo non dipende dall'ampiezza, e nel pendolo semplice nemmeno dalla massa.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Pendolo <span>01</span></h2>
+      <div class="row" data-ctl="type"></div>
+      <div class="row" data-ctl="L"></div>
+      <div class="row" data-ctl="bob"></div>
+      <div class="row" data-ctl="body"></div>
+      <div class="row" data-ctl="hole"></div>
+      <p class="help" id="pend-note"></p>
+      <div data-ctl="two"></div>
+      <div class="row" data-ctl="L2"></div>
+      <div class="row" data-ctl="bob2"></div>
+    </section>
+    <section class="sec">
+      <h2>Lancio <span>02</span></h2>
+      <div class="row" data-ctl="amp"></div>
+      <p class="help" id="launch-note"></p>
+      <div data-ctl="air"></div>
+    </section>
+    <section class="sec">
+      <h2>Misura <span>03</span></h2>
+      <div class="row" data-ctl="N"></div>
+      <p class="help">La fotocellula in basso segna ogni passaggio: il cronometro parte al primo e si ferma dopo N periodi, cioè 2N passaggi più in là.</p>
+    </section>
+    <section class="sec">
+      <h2>Confronti <span>04</span></h2>
+      <div data-ctl="harm"></div>
+      <div data-ctl="equiv"></div>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>05</span></h2>
+      <div class="row" data-ctl="slow"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>06</span></h2>
+      <div data-ctl="forces"></div>
+      <div data-ctl="comps"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Il pendolo semplice.</b> Spostato di θ, il peso ha una componente m·g·sin θ lungo l'arco che lo riporta indietro. Per piccoli angoli sin θ ≈ θ, il moto è armonico e il periodo è T₀ = 2π·√(L/g): non dipende dall'ampiezza (l'isocronismo che Galileo notò nel 1583) né dalla massa, perché la massa compare sia nella forza sia nell'inerzia. Misurando T a lunghezze diverse, T² cresce come L con pendenza 4π²/g: è un modo classico di misurare g.</p>
+      <p><b>Le grandi ampiezze.</b> Oltre una ventina di gradi sin θ è minore di θ, la forza che riporta indietro è più debole e il periodo si allunga: T = T₀ / agm(1, cos(θ₀/2)), con agm la media aritmetico-geometrica. A 90° è del 18 % più lungo; vicino a 180° il pendolo indugia in alto e il periodo cresce senza limite.</p>
+      <p><b>Il pendolo fisico.</b> Un corpo rigido appeso a un perno a distanza d dal baricentro oscilla con T₀ = 2π·√(I/(m·g·d)), dove I = I_G + m·d² è il momento d'inerzia rispetto al perno. È come un pendolo semplice lungo L = I/(m·d), la lunghezza equivalente: il punto a quella distanza, il centro di oscillazione, sta dall'altra parte del baricentro, e appendendo il corpo lì il periodo resta lo stesso (Huygens, 1673; Kater lo usò nel 1817 per misurare g). Il periodo è minimo quando d è uguale al raggio d'inerzia: per l'asta d = L/√12, per il disco d = R/√2. L'anello appeso al bordo batte come un pendolo semplice lungo quanto il suo diametro.</p>
+      <p><b>Aria e attriti.</b> Nell'aria la spinta di Archimede riduce un poco il peso, l'aria trascinata aumenta l'inerzia e la resistenza smorza le oscillazioni, tanto di più quanto più il corpo è leggero: la sfera di sughero perde metà dell'ampiezza molto prima di quella di piombo, ma oscilla quasi con lo stesso periodo, come scrisse Galileo nei Discorsi. Il perno e il filo dissipano pochissimo.</p>
+      <p><b>Il calcolo.</b> L'equazione I·θ'' = −m·g·d·sin θ − attriti è integrata con Runge–Kutta a passi di mezzo millisecondo; gli istanti in cui il corpo entra ed esce dal fascio della fotocellula sono cercati per bisezione dentro il passo. Nella sfera contano anche il suo raggio (I = m·(L² + ⅖·r²)) e la massa del filo.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> per lasciarlo · <b>P</b> pausa · <b>R</b> riporta · <span class="do">trascina il pendolo per spostarlo, poi lascialo andare</span></div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Cronometro e misure">
+  <div class="bar top"><span><b id="live-title">Cronometro</b><span class="wide" id="live-sub"></span></span><span class="status" id="status">pronto</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">0,000</span><small id="unit">s</small></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico del moto"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="go" title="Lascia andare il pendolo dall'ampiezza scelta (barra spaziatrice)"><i></i><span>Via</span></button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)" disabled>Pausa</button>
+      <button class="btn small" id="reset" title="Ferma il pendolo e riportalo alla posizione di partenza (R)">Riporta</button>
+      <button class="btn small" id="clear" title="Cancella le misure">Cancella</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="theta" class="on" title="Angolo in funzione del tempo, negli ultimi 20 s">θ(t)</button><button data-k="phase" title="Spazio delle fasi: velocità angolare in funzione dell'angolo">fasi</button><button data-k="energy" title="Energia cinetica, potenziale e totale">energia</button><button data-k="law" title="Quadrato del periodo in funzione della lunghezza">T² e L</button><button data-k="amp" title="Periodo, in unità di T₀, in funzione dell'ampiezza">T e θ₀</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Appendo il pendolo…<small>Galileo Sim · Meccanica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>
