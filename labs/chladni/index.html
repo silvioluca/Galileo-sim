@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le figure di Chladni — Galileo Sim</title>
+<meta name="description" content="Le figure di Chladni in 3D: una lamina di metallo o di vetro cosparsa di sabbia vibra, scossa da un vibratore o sfregata con l'archetto, e la sabbia si raccoglie lungo le linee nodali. Lamine quadrate, rotonde, rettangolari e a chitarra, i modi calcolati con il metodo di Ritz, il licopodio di Faraday e la legge di Chladni.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: una lamina scura cosparsa di sabbia, fissata al centro su un vibratore collegato a un generatore di funzioni; quando la lamina risuona la sabbia disegna le linee nodali"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Onde · Lamine vibranti</p>
+    <h1>Le figure di <em>Chladni</em></h1>
+    <p class="lede">Una lamina cosparsa di sabbia, fatta vibrare a una delle sue frequenze proprie. Dove la lamina si muove la sabbia salta via; dove resta ferma si raccoglie e disegna le linee nodali.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Lamina <span>01</span></h2>
+      <div data-ctl="shape"></div>
+      <div data-ctl="mat"></div>
+      <div class="row" data-ctl="h"></div>
+      <div class="row" data-ctl="size"></div>
+    </section>
+    <section class="sec">
+      <h2>Come vibra <span>02</span></h2>
+      <div data-ctl="exc"></div>
+      <div id="grp-shaker">
+        <div class="row" data-ctl="f"></div>
+        <div class="row" data-ctl="amp"></div>
+        <div data-ctl="sweep"></div>
+        <div data-ctl="mount"></div>
+      </div>
+      <div id="grp-bow" hidden>
+        <div class="row" data-ctl="bowPos"></div>
+        <div data-ctl="finger"></div>
+        <div class="row" data-ctl="fingerPos"></div>
+        <div class="row" data-ctl="pressure"></div>
+        <p class="help">Nel riquadro a destra: clic sul bordo per spostare l'archetto, clic destro per il dito.</p>
+      </div>
+    </section>
+    <section class="sec">
+      <h2>Sabbia <span>03</span></h2>
+      <div data-ctl="powder"></div>
+      <div class="row" data-ctl="grains"></div>
+      <div class="btnrow"><button class="btn small" id="sprinkle2" title="Sparge altra sabbia sulla lamina (S)">Spargi</button><button class="btn small" id="clear" title="Toglie tutta la sabbia, anche quella caduta">Pulisci</button></div>
+    </section>
+    <section class="sec">
+      <h2>Osservazione <span>04</span></h2>
+      <div data-ctl="vib"></div>
+      <div data-ctl="map"></div>
+      <div data-ctl="lines"></div>
+      <div data-ctl="sound"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>05</span></h2>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>La lamina.</b> È una lamina sottile di Kirchhoff con il bordo libero. I suoi modi propri si calcolano con il metodo di Ritz, lo stesso con cui Walther Ritz risolse nel 1909 il problema di Chladni: lo spostamento è una somma di prodotti di polinomi di Legendre, scelti in modo da rendere stazionaria l'energia di flessione. Per la lamina quadrata le frequenze coincidono con quelle tabulate da Leissa. La frequenza di ogni modo cresce con lo spessore e cala con il quadrato del lato: f ∝ (h/L²)·√(E/ρ).</p>
+      <p><b>Il vibratore.</b> Spinge la lamina dal foro con una forza che oscilla alla frequenza del generatore. La risposta è la somma dei modi, ciascuno amplificato quando la frequenza si avvicina alla sua: in risonanza domina un solo modo e la sabbia ne disegna le linee nodali. Il fattore di merito Q (da 120 a 280 secondo il materiale) fissa quanto è stretta ogni risonanza. Dal centro si eccitano solo i modi che lì non hanno un nodo; dal foro decentrato quasi tutti.</p>
+      <p><b>L'archetto.</b> Come faceva Chladni, la lamina è stretta al centro e l'archetto ne sfrega il bordo. Suona il modo che ha un ventre sotto l'archetto. Il dito appoggiato sul bordo smorza i modi che lì si muovono, e fra due modi della stessa frequenza sopravvive quello con un nodo sotto il dito. Un archetto pesante preferisce le note basse.</p>
+      <p><b>La sabbia.</b> Un granello resta fermo finché la lamina sotto di lui accelera meno di g. Oltre, rimbalza: a ogni salto riparte un po' a caso e un po' verso dove la lamina vibra meno, e si ferma solo dove l'accelerazione scende sotto g, cioè lungo le linee nodali. La polvere finissima di licopodio fa il contrario: le correnti d'aria create dalla lamina la portano ai ventri (Faraday, 1831). Il moto dei granelli è un modello, non un calcolo dei singoli urti.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> accende · <b>[ ]</b> risonanze · <b>← →</b> sintonia fine · <b>P</b> pausa</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Il generatore e la figura prevista">
+  <div class="bar top"><span><b id="live-title">Il generatore</b></span><span class="status" id="status">–</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">—</span></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <canvas id="figure" width="768" height="440" aria-label="La figura prevista: dove la sabbia dovrebbe raccogliersi"></canvas>
+  <canvas id="plot" width="768" height="260" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="go" title="Accende o spegne il generatore (barra spaziatrice)"><i></i><span>Accendi</span></button>
+      <button class="btn small icon" id="prev" title="Risonanza precedente ([)" aria-label="Risonanza precedente">◀</button>
+      <button class="btn small icon" id="next" title="Risonanza successiva (])" aria-label="Risonanza successiva">▶</button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)">Pausa</button>
+      <button class="btn small" id="sprinkle" title="Sparge altra sabbia (S)">Spargi</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="resp" class="on" title="L'accelerazione della lamina al variare della frequenza: i picchi sono le risonanze">risposta</button><button data-k="modes" title="Le frequenze dei modi; per la lamina rotonda la legge di Chladni">modi</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Calcolo i modi della lamina…<small>Galileo Sim · Onde</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

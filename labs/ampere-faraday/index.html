@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le esperienze di Ampère e di Faraday — Galileo Sim</title>
+<meta name="description" content="Le forze magnetiche sulle correnti in 3D: l'altalena di Faraday fra i poli di uno, due o tre magneti a U, con il goniometro per misurare F = BIL; e le due strisce di alluminio di Ampère, che si respingono con correnti opposte e si attraggono con correnti concordi.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: un'altalena d'ottone appesa a due colonnine, con il tratto orizzontale fra i poli di magneti a U rossi, e un goniometro trasparente accanto"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Magnetismo · Forze magnetiche</p>
+    <h1>Le esperienze di <em>Ampère</em> e di <em>Faraday</em></h1>
+    <p class="lede">Un magnete spinge un filo percorso da corrente, e due correnti si spingono fra loro: si attraggono se vanno nello stesso verso, si respingono se vanno in versi opposti.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Esperienza <span>01</span></h2>
+      <div data-ctl="exp"></div>
+    </section>
+    <section class="sec only-f">
+      <h2>L'altalena <span>02</span></h2>
+      <div data-ctl="on"></div>
+      <div class="row" data-ctl="I"></div>
+      <div data-ctl="rev"></div>
+      <div data-ctl="nMag"></div>
+      <div data-ctl="flip"></div>
+    </section>
+    <section class="sec only-a" hidden>
+      <h2>Le strisce <span>02</span></h2>
+      <div class="row" data-ctl="Ia"></div>
+      <div data-ctl="mode"></div>
+    </section>
+    <section class="sec">
+      <h2>Osservare <span>03</span></h2>
+      <div data-ctl="vectors"></div>
+      <div class="only-a" data-ctl="lines" hidden></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>04</span></h2>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>L'altalena di Faraday.</b> Il tratto orizzontale, un tondino d'ottone di 20 cm, pende da due fili di rame lunghi 20 cm; con i fili pesa 35 g. Fra le espansioni polari di ogni magnete a U, larghe 4 cm e profonde 10, il campo è verticale e vale 90 mT, e cala in pochi millimetri ai bordi. La forza F = I L × B è orizzontale: l'altalena si inclina finché la forza bilancia il peso, tan θ = F / mg, oscillando un poco. Se esce troppo dai poli la forza diminuisce.</p>
+      <p><b>Le strisce di Ampère.</b> Due nastri di alluminio larghi 12 mm e lunghi 50 cm, a 16 mm l'uno dall'altro, tesi da due mollette con 12 mN. Ogni tratto subisce la forza per metro μ0 I1 I2 / (2π d), con la distanza d di quel tratto: la forma viene dall'equazione della corda tesa, con un po' d'attrito dell'aria. In serie le correnti sono opposte e uguali a quella dell'alimentatore; in parallelo hanno lo stesso verso e ciascuna è la metà. Quando si attraggono, avvicinandosi la forza cresce: oltre una certa corrente si chiudono di colpo e restano attaccate.</p>
+      <p><b>Il campo a metà altezza.</b> Le linee del campo delle due correnti sono le curve di livello di ψ = ln r₁ ± ln r₂, calcolate come se le strisce fossero due fili.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>← →</b> corrente · <b>A</b> annota · <b>P</b> pausa</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Le misure">
+  <div class="bar top"><span><b id="live-title">L'esperienza di Faraday</b></span><span class="status" id="status">–</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">—</span></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <canvas id="schema" width="768" height="380" aria-label="Lo schema dell'esperienza, con le forze"></canvas>
+  <canvas id="plot" width="768" height="260" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)">Pausa</button>
+      <button class="btn small" id="note" title="Annota la misura (A)">Annota</button>
+      <button class="btn small" id="clear" title="Cancella i punti annotati">Cancella</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Appendo l'altalena…<small>Galileo Sim · Magnetismo</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

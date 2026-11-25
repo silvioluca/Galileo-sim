@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il campo magnetico — Galileo Sim</title>
+<meta name="description" content="Il campo magnetico in 3D: la limatura di ferro sulla lastra attorno a un magnete a barra, a due magneti, a un ferro di cavallo, a un filo percorso da corrente, a una spira e a un solenoide; le bussole, le linee di campo, il teslametro con la sonda di Hall; l'esperienza di Ørsted e la bussola delle tangenti.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: una lastra bianca con la limatura di ferro disposta lungo le linee di campo di un magnete a barra rosso e blu"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Magnetismo · Campo magnetico</p>
+    <h1>Il campo <em>magnetico</em></h1>
+    <p class="lede">Attorno a un magnete, e attorno a una corrente, lo spazio cambia: la limatura di ferro si mette in fila e gli aghi delle bussole si girano. Le linee di campo si vedono, e il teslametro le misura.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>La sorgente <span>01</span></h2>
+      <div data-ctl="src"></div>
+      <div class="only-two" data-ctl="pair" hidden></div>
+      <div class="only-cond" data-ctl="on" hidden></div>
+      <div class="row only-cond" data-ctl="I" hidden></div>
+      <div class="only-cond" data-ctl="rev" hidden></div>
+      <div class="only-loop" data-ctl="nLoop" hidden></div>
+      <div class="only-coil" data-ctl="nCoil" hidden></div>
+    </section>
+    <section class="sec">
+      <h2>Osservare <span>02</span></h2>
+      <div data-ctl="filings"></div>
+      <div class="btnrow only-filings"><button class="btn small" id="tap" title="Qualche colpetto sulla lastra: la limatura salta e si dispone (T)">Picchietta la lastra</button><button class="btn small" id="sprinkle" title="Si pulisce la lastra e si sparge di nuovo la limatura">Spargi di nuovo</button></div>
+      <div data-ctl="compasses"></div>
+      <div data-ctl="lines"></div>
+      <div data-ctl="lines3d"></div>
+      <div data-ctl="probe"></div>
+      <div class="row only-probe" data-ctl="s" hidden></div>
+      <div class="btnrow only-probe" hidden><button class="btn small" id="zero" title="Il teslametro prende come zero la lettura di adesso: si fa a corrente spenta, per togliere il campo terrestre">Azzera il teslametro</button></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>03</span></h2>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>I magneti.</b> Sono di ferrite, magnetizzati in modo uniforme (Br ≈ 0,38 T). Il loro campo è quello di «cariche magnetiche» distribuite sulle facce dei poli, positive al nord: B = μ0/4π · Σ q r̂/r². Sulla lastra, sei millimetri sopra il magnete, vicino ai poli il campo arriva a qualche decina di millitesla.</p>
+      <p><b>Le correnti.</b> Il filo è una barra di rame verticale lunga 49 cm; il suo campo viene dalla legge di Biot–Savart per un segmento rettilineo, e lontano dal filo è un po' meno di μ0I/2πr. La spira e le spire del solenoide sono anelli, con il campo esatto anche fuori dall'asse (integrali ellittici).</p>
+      <p><b>La limatura.</b> I granelli si magnetizzano e, picchiettando la lastra, si girano lungo il campo e si attaccano in catene, che seguono le linee di campo. Sotto qualche centesimo di millitesla il campo non basta a girarli; sopra i poli, dove il campo è quasi verticale, si rizzano.</p>
+      <p><b>Le bussole e il teslametro.</b> L'ago si orienta lungo il campo orizzontale, compreso quello terrestre (20 µT verso il nord, che qui è lontano da noi), oscillando un poco. La sonda di Hall misura una sola componente del campo, quella perpendicolare alla sua lamina: lungo l'asse per magneti, spire e solenoide, tangente al cerchio per il filo. Il campo terrestre si toglie azzerando il teslametro a corrente spenta.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>T</b> picchietta · <b>← →</b> sonda · <b>↑ ↓</b> corrente · <b>A</b> annota · <b>P</b> pausa</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Le misure">
+  <div class="bar top"><span><b id="live-title">Il campo</b></span><span class="status" id="status">–</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">—</span></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <canvas id="schema" width="768" height="520" aria-label="La lastra vista dall'alto: intensità del campo, linee di campo, bussole e sonda"></canvas>
+  <canvas id="plot" width="768" height="260" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)">Pausa</button>
+      <button class="btn small" id="note" title="Annota la lettura del teslametro e della bussola (A)">Annota</button>
+      <button class="btn small" id="clear" title="Cancella i punti annotati">Cancella</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Spargo la limatura…<small>Galileo Sim · Magnetismo</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

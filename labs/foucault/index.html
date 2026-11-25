@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il pendolo di Foucault — Galileo Sim</title>
+<meta name="description" content="Il pendolo di Foucault in 3D: un peso d'ottone su un filo lunghissimo sopra un quadrante con i birilli. Il piano di oscillazione gira per la rotazione della Terra, di 360°·sin φ al giorno siderale. Latitudine, tempo accelerato, vista dalle stelle, l'ellisse di Airy e l'anello di Charron.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: un peso d'ottone appeso a un filo lunghissimo oscilla sopra un grande quadrante circolare con un anello di birilli"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Meccanica · Rotazione della Terra</p>
+    <h1>Il pendolo di <em>Foucault</em></h1>
+    <p class="lede">Un peso d'ottone appeso a un filo lunghissimo, lanciato bruciando il filo che lo tiene. Ora dopo ora il piano in cui oscilla gira e fa cadere i birilli uno a uno: è la Terra che ruota.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Luogo <span>01</span></h2>
+      <div class="chips" id="places"></div>
+      <div class="row" data-ctl="lat"></div>
+    </section>
+    <section class="sec">
+      <h2>Pendolo <span>02</span></h2>
+      <div class="row" data-ctl="L"></div>
+      <div class="row" data-ctl="A"></div>
+      <div class="row" data-ctl="m"></div>
+      <div class="row" data-ctl="vt"></div>
+      <div data-ctl="ring"></div>
+      <div data-ctl="drive"></div>
+    </section>
+    <section class="sec">
+      <h2>Osservazione <span>03</span></h2>
+      <div data-ctl="pins"></div>
+      <div data-ctl="trace"></div>
+      <div data-ctl="theory"></div>
+      <div data-ctl="stars"></div>
+    </section>
+    <section class="sec">
+      <h2>Tempo <span>04</span></h2>
+      <div class="row" data-ctl="warp"></div>
+      <p class="help">Il piano gira di pochi gradi all'ora: per vederlo, fai correre il tempo. Con il tempo veloce il peso appare mosso, come in una foto a lunga esposizione.</p>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>05</span></h2>
+      <div class="row" data-ctl="ambient"></div>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Il moto.</b> Il peso è trattato come un pendolo sferico completo, non linearizzato, nel riferimento della Terra che ruota. Agiscono la gravità del luogo (che cambia un poco con la latitudine), la tensione del filo, la resistenza dell'aria e la forza di Coriolis −2Ω×v, con il vettore intero della rotazione terrestre (un giro in un giorno siderale, 23 h 56 min 4 s). L'integrazione è di Runge–Kutta, 400 passi per oscillazione.</p>
+      <p><b>Perché il piano gira.</b> Conta solo la parte della rotazione terrestre attorno alla verticale del luogo, Ω·sin φ: al polo è tutta, all'equatore è nulla. Il piano gira quindi di 360°·sin φ in un giorno siderale, in senso orario nell'emisfero nord e antiorario in quello sud. La rotazione misurata viene dagli azimut dei punti d'inversione.</p>
+      <p><b>L'ellisse che inganna.</b> Se il peso parte con una spinta di traverso, oscilla su un'ellisse, e un'ellisse di semiassi a e b gira da sola a (3/8)·ω₀·a·b/L² (precessione di Airy). In un pendolo corto questo effetto può superare quello della Terra. Per questo Foucault bruciò il filo invece di lasciare il peso con la mano, e i pendoli moderni hanno l'anello di Charron, che smorza il moto di traverso. Qui l'anello è ideale: frena l'ellisse senza toccare la rotazione del piano.</p>
+      <p><b>Il resto.</b> L'aria frena il peso, e senza aiuto l'ampiezza si dimezza in un paio d'ore. La spinta elettromagnetica, una piccola spinta lungo la velocità quando il peso passa vicino al centro, rimpiazza l'energia persa senza far girare il piano. I birilli cadono quando la punta li sfiora.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> lascia andare o ferma il peso · <b>P</b> pausa</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Il piano di oscillazione">
+  <div class="bar top"><span><b>Il piano</b><span class="wide"> · visto dall'alto</span></span><span class="status" id="status">–</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">—</span></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <canvas id="topview" width="768" height="500" aria-label="Il quadrante visto dall'alto, con la traccia della punta e il piano misurato"></canvas>
+  <canvas id="plot" width="768" height="260" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="go" title="Lascia andare il peso, o fermalo (barra spaziatrice)"><i></i><span>Lascia andare</span></button>
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)" disabled>Pausa</button>
+      <button class="btn small" id="reset" title="Rimette in piedi i birilli e cancella la traccia">Birilli</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="angle" class="on" title="Rotazione del piano nel tempo, misurata e prevista">rotazione</button><button data-k="ellipse" title="Il semiasse minore dell'ellisse">ellisse</button><button data-k="amp" title="L'ampiezza dell'oscillazione">ampiezza</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Appendo il pendolo…<small>Galileo Sim · Meccanica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

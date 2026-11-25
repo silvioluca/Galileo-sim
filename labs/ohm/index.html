@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le leggi di Ohm — Galileo Sim</title>
+<meta name="description" content="Le leggi di Ohm in 3D: un alimentatore da laboratorio con il limite di corrente, l'amperometro in serie e il voltmetro in parallelo, a monte o a valle; resistori e un LED presi con le pinze a coccodrillo, una lampadina E10 nel portalampada, un filo teso fra due isolatori; e per la seconda legge, R = ρL/S, i fili con la pinza che scorre.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: un alimentatore da laboratorio e due multimetri collegati con cavi rossi e neri a un componente su una basetta di legno"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Elettricità · Circuiti</p>
+    <h1>Le leggi di <em>Ohm</em></h1>
+    <p class="lede">In un resistore la corrente è proporzionale alla tensione, e la resistenza di un filo cresce con la lunghezza e cala con la sezione. Si misura con l'amperometro in serie e il voltmetro in parallelo.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Esperienza <span>01</span></h2>
+      <div data-ctl="exp"></div>
+    </section>
+    <section class="sec">
+      <h2>Alimentatore <span>02</span></h2>
+      <div data-ctl="on"></div>
+      <div class="row" data-ctl="Vset"></div>
+      <div class="row" data-ctl="Ilim"></div>
+      <div data-ctl="flip"></div>
+    </section>
+    <section class="sec">
+      <h2 id="sec3">Il conduttore <span>03</span></h2>
+      <div class="only-1" data-ctl="comp"></div>
+      <div class="only-2" data-ctl="holder" hidden></div>
+      <div class="only-w" data-ctl="wire" hidden></div>
+      <div class="row only-w" data-ctl="L" hidden></div>
+      <div class="btnrow"><button class="btn small fresh" id="fresh" title="Monta un conduttore nuovo, freddo (anche al posto di uno bruciato)">Componente nuovo</button></div>
+    </section>
+    <section class="sec">
+      <h2>Strumenti <span>04</span></h2>
+      <div data-ctl="mode"></div>
+      <div data-ctl="ideal"></div>
+      <div data-ctl="dots"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>05</span></h2>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <div class="row" data-ctl="ambient"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>L'alimentatore.</b> Tiene la tensione impostata (CV) finché la corrente non arriva al limite; da lì tiene la corrente (CC) e la tensione cala quanto serve. I suoi display dicono che cosa esce dai morsetti; per misurare il componente servono gli strumenti.</p>
+      <p><b>Gli strumenti.</b> Multimetri a 3½ cifre con la portata automatica. L'amperometro ha una resistenza interna di 1 Ω sulle portate dei milliampere e di 0,05 Ω su quella degli ampere; il voltmetro 10 MΩ. A valle, il voltmetro è ai capi del solo componente e l'amperometro conta anche la sua piccola corrente; a monte, il voltmetro misura anche la caduta di tensione sull'amperometro. Con gli strumenti ideali le due inserzioni danno lo stesso.</p>
+      <p><b>I componenti.</b> I resistori assiali da 2 W (tolleranza 5 %, 200 ppm/K), presi per i reofori con due pinze a coccodrillo, si scaldano con la potenza, verso 60 °C per watt in più dell'ambiente, e bruciano se restano sopra i 400 °C. La lampadina è una E10 da 6 V e 0,3 A avvitata nel suo portalampada, con il filamento di tungsteno a spirale tenuto da due reofori: la resistenza cresce come T^1,2 e la temperatura viene dal bilancio fra la potenza elettrica e quella irraggiata, σT⁴, con qualche centesimo di secondo d'inerzia: da freddo la resistenza è dodici volte più piccola e all'accensione passa uno spunto di corrente. Il LED segue la legge del diodo, I = Iₛ(e^{V/nV_T} − 1), con una piccola resistenza in serie.</p>
+      <p><b>I fili.</b> Un filo solo teso fra due isolatori di porcellana su asta, con la pinza a coccodrillo, oppure il banco con sei fili affiancati; la pinza si sposta lungo il filo. R = ρL/S per il tratto fra il morsetto e la pinza, più circa 0,01 Ω del contatto, con il coefficiente di temperatura del materiale: quasi nullo per la costantana, alto per il ferro. Il tratto percorso si scalda con la potenza per unità di lunghezza, in una decina di secondi; un filo di ferro percorso da un ampere si scalda di una trentina di gradi e la sua resistenza cresce di quasi il 20 %.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>← →</b> tensione · <b>↑ ↓</b> la pinza sul filo · <b>A</b> annota · <b>P</b> pausa</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Le misure">
+  <div class="bar top"><span><b id="live-title">Il circuito</b></span><span class="status" id="status">–</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">—</span></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <canvas id="schema" width="768" height="380" aria-label="Lo schema del circuito con le letture degli strumenti"></canvas>
+  <canvas id="plot" width="768" height="260" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)">Pausa</button>
+      <button class="btn small" id="note" title="Annota le letture degli strumenti (A)">Annota</button>
+      <button class="btn small" id="clear" title="Cancella i punti annotati">Cancella</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Collego i cavi…<small>Galileo Sim · Elettricità</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il principio di Bernoulli — Galileo Sim</title>
+<meta name="description" content="Il principio di Bernoulli in 3D: il tubo di Venturi con i tubicini piezometrici e i tubi di Pitot, il serbatoio a livello costante, la valvola, il becher per la portata, l'aspiratore alla gola; e la pallina da ping-pong che galleggia nel getto d'aria di un asciugacapelli, anche inclinato.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: un tubo trasparente con una strozzatura, pieno d'acqua colorata che scorre; sopra, tubicini verticali in cui l'acqua sale a altezze diverse"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Fluidi · Fluidi in moto</p>
+    <h1>Il principio di <em>Bernoulli</em></h1>
+    <p class="lede">Dove un fluido corre più veloce, la sua pressione è più bassa. Lo mostrano l'acqua che sale meno nei tubicini sopra la strozzatura di un tubo e una pallina che galleggia, docile, nel getto d'aria.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Apparato <span>01</span></h2>
+      <div data-ctl="app"></div>
+    </section>
+    <section class="sec only-v">
+      <h2>Il tubo <span>02</span></h2>
+      <div data-ctl="profile"></div>
+      <div class="row" data-ctl="throat"></div>
+      <div class="row" data-ctl="H"></div>
+      <div class="row" data-ctl="valve"></div>
+      <div data-ctl="ideal"></div>
+    </section>
+    <section class="sec only-v">
+      <h2>Osservazione <span>03</span></h2>
+      <div data-ctl="pitot"></div>
+      <div data-ctl="aspirator"></div>
+      <div data-ctl="tracers"></div>
+      <div data-ctl="slow"></div>
+    </section>
+    <section class="sec only-j" hidden>
+      <h2>Il getto <span>02</span></h2>
+      <div class="row" data-ctl="U0"></div>
+      <div class="row" data-ctl="tilt"></div>
+      <div data-ctl="ball"></div>
+      <div class="btnrow"><button class="btn small" id="push" title="Una spinta di lato alla pallina (S)">Spingi la pallina</button><button class="btn small" id="drop" title="Rimette la pallina sopra il getto">Rimettila</button></div>
+    </section>
+    <section class="sec only-j" hidden>
+      <h2>Osservazione <span>03</span></h2>
+      <div data-ctl="smoke"></div>
+      <div data-ctl="forces"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>04</span></h2>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Il tubo.</b> Il serbatoio ha un troppo pieno che tiene il livello costante: il carico H, l'altezza dell'acqua sopra l'asse del tubo. Lungo il tubo la portata è la stessa ovunque (continuità, Q = A·v) e vale il bilancio dell'energia: l'altezza nei tubicini, h = p/ρg, più il carico cinetico v²/2g, più quanto si è perso per strada, fa H. Le perdite sono l'attrito (fattore di Darcy: laminare 64/Re, turbolento con la formula di Blasius), quella del divergente e, nella strozzatura a spigolo vivo, quelle della contrazione e dell'allargamento brusco (Borda–Carnot). La portata è quella per cui le perdite, la valvola e il carico cinetico all'uscita esauriscono H. Con il fluido ideale restano solo la valvola e l'uscita: nei tubicini vale Bernoulli esatto.</p>
+      <p><b>I tubicini.</b> L'acqua vi sale e scende con un po' d'inerzia e qualche oscillazione. Se alla gola la pressione scende sotto quella atmosferica il tubicino si svuota e la gola aspira aria; con l'aspiratore, aspira l'inchiostro dalla vaschetta. I tubi di Pitot, con la presa rivolta contro corrente, segnano il carico totale h + v²/2g.</p>
+      <p><b>La pallina.</b> Il getto ha un nucleo lungo circa sei diametri, poi la velocità sull'asse cala come 1/distanza e il profilo trasversale è gaussiano. La resistenza dell'aria (½ρC·A·v²) tiene su la pallina dove la velocità del getto la bilancia con il peso. Se la pallina si sposta di lato, sul fianco verso l'asse l'aria corre più veloce: la pressione lì è più bassa e la forza la riporta dentro (con l'aiuto dell'effetto Coandă). La forza laterale e i colpi della turbolenza sono un modello semplice, tarato sull'esperienza.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>← →</b> rubinetto o inclinazione · <b>A</b> annota · <b>P</b> pausa</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Le misure">
+  <div class="bar top"><span><b id="live-title">Il bilancio di Bernoulli</b></span><span class="status" id="status">–</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">—</span></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <canvas id="schema" width="768" height="380" aria-label="Il bilancio di Bernoulli ai tubicini"></canvas>
+  <canvas id="plot" width="768" height="260" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)">Pausa</button>
+      <button class="btn small" id="note" title="Annota la misura per il venturimetro (A)">Annota</button>
+      <button class="btn small" id="clear" title="Cancella i punti annotati">Cancella</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Riempio il serbatoio…<small>Galileo Sim · Fluidi</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

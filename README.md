@@ -14,16 +14,25 @@ I laboratori non sono numerati: la pagina iniziale li raggruppa per branca della
 | Meccanica | Il pendolo | Oscillazioni | `labs/pendolo/` |
 | Meccanica | Il moto parabolico | Cinematica | `labs/parabolico/` |
 | Meccanica | Il moto circolare | Dinamica | `labs/circolare/` |
+| Meccanica | Il pendolo di Foucault | Rotazione della Terra | `labs/foucault/` |
 | Meccanica | La guidovia | Dinamica e urti | `labs/guidovia/` |
 | Fluidi | Caduta in un fluido viscoso | Viscosità | `labs/viscosita/` |
 | Fluidi | La spinta di Archimede | Idrostatica | `labs/archimede/` |
+| Fluidi | Il principio di Bernoulli | Fluidi in moto | `labs/bernoulli/` |
 | Onde | Le onde stazionarie | Corde e tubi sonori | `labs/onde/` |
 | Onde | La vaschetta ondoscopica | Onde sull'acqua | `labs/vaschetta/` |
+| Onde | Le figure di Chladni | Lamine vibranti | `labs/chladni/` |
 | Ottica | La macchina fotografica | Ottica geometrica | `labs/fotocamera/` |
 | Ottica | Il prisma ottico | Ottica geometrica | `labs/prisma/` |
 | Ottica | Lenti e immagini | Ottica geometrica | `labs/lenti/` |
+| Ottica | Il kit di ottica | Raggi luminosi | `labs/kit-ottica/` |
+| Ottica | La rifrazione della luce | Rifrazione | `labs/rifrazione/` |
+| Ottica | La polarizzazione della luce | Polarizzazione | `labs/polarizzazione/` |
 | Ottica | Interferenza e diffrazione | Ottica ondulatoria | `labs/interferenza/` |
 | Ottica | L'esperimento di Fizeau | Velocità della luce | `labs/fizeau/` |
+| Elettricità | Le leggi di Ohm | Circuiti | `labs/ohm/` |
+| Magnetismo | Il campo magnetico | Campo magnetico | `labs/campo-magnetico/` |
+| Magnetismo | Le esperienze di Ampère e di Faraday | Forze magnetiche | `labs/ampere-faraday/` |
 
 ## Provarlo in locale
 
@@ -83,6 +92,10 @@ labs/circolare/            il moto circolare
   js/circ.js               motore, dischi (braccio, cuscino d'aria, volo, pavimento), fotocellula
   js/rig.js                piattaforma rotante, braccio con sensore, centralina, lampada e schermo
   js/ui.js, main.js
+labs/foucault/             il pendolo di Foucault
+  js/pendulum.js           pendolo sferico nel riferimento della Terra (Coriolis con Ω intero, g(φ), aria), spinta, anello di Charron, piano misurato
+  js/rig.js                quadrante con rosa dei venti, peso d'ottone, filo, travi e anello in alto, paletto col filo da bruciare, birilli, traccia
+  js/ui.js, main.js
 labs/guidovia/             la guidovia
   js/track.js              carrelli sul cuscino d'aria, urti molla–smorzatore e velcro, filo e carrucola, fotocellule (Runge–Kutta 4)
   js/rig.js                banco, rotaia triangolare con spessori, carrelli, fotocellule e cronometro, carrucola, soffiante
@@ -97,6 +110,10 @@ labs/archimede/            la spinta di Archimede
   js/hydro.js              liquidi e materiali, volume immerso (esatto da dritti, tabulato da inclinati), molla, livello, vaso a sfioro, secchiello
   js/rig.js                sostegno, dinamometro a molla, corpi, becher graduato, vaso a sfioro su elevatore, becherino, bilancia elettronica
   js/ui.js, main.js
+labs/bernoulli/            il principio di Bernoulli
+  js/flow.js               tubo di Venturi (continuità, bilancio dell'energia con attrito di Darcy e perdite localizzate, portata), getto d'aria e pallina
+  js/rig.js                pannello con la scala, serbatoio a livello costante, tubo trasparente, tubicini e tubi di Pitot, valvola, becher, aspiratore; asciugacapelli, pallina, fumo, asta
+  js/ui.js, main.js
 
 Onde
 labs/onde/                 le onde stazionarie
@@ -106,7 +123,15 @@ labs/onde/                 le onde stazionarie
 labs/vaschetta/            la vaschetta ondoscopica
   js/ripple.js             dispersione delle increspature (gravità e tensione superficiale), interferenza e diffrazione di Huygens, Doppler
   js/tank.js               l'acqua nella scheda grafica: equazione delle onde su 400 × 400 celle, pareti, sorgenti, la luce sul foglio
-  js/rig.js                vasca col fondo di vetro, vibratore a punte e ad asta, carrello, ostacoli, spiagge, lampada, foglio; specchio a 45° e schermo
+  js/rig.js                vasca col fondo di vetro, generatore di vibrazioni su sostegno con braccio, punte e barra, carrello, ostacoli, spiagge, lampada, foglio; specchio a 45° e schermo
+  js/ui.js, main.js
+labs/chladni/              le figure di Chladni
+  js/plate.js              lamine (forme, materiali), modi propri con il metodo di Ritz (polinomi di Legendre, quadratura di Gauss), morsetto
+  js/eigen.js              autovalori di matrici simmetriche (Householder e QL)
+  js/worker.js             il calcolo dei modi in un thread a parte
+  js/field.js              risposta forzata al vibratore, sintesi del campo sulla griglia, scelta del modo che suona con l'archetto e il dito
+  js/sand.js               i granelli: salti dove la lamina accelera più di g, strisciamento verso i nodi, frane, licopodio verso i ventri, caduta dal bordo
+  js/rig.js                lamina deformabile, vibratore, generatore con display, cavi, sostegno con morsetto, archetto, dito, granelli, linee nodali
   js/ui.js, main.js
 
 Ottica
@@ -126,6 +151,21 @@ labs/lenti/                lenti e immagini
   js/bench.js              banco ottico, lampada con la F o collimatore, portalenti, diaframma, schermo
   js/rays.js               raggi principali, raggi veri, asse, fuochi, oggetto e immagine
   js/ui.js, main.js
+labs/kit-ottica/           il kit di ottica da lavagna
+  js/shapes.js             i pezzi del kit (segmenti e archi), indice dell'acrilico (Sellmeier), focali nominali
+  js/trace.js              raggi in 2D: Snell, Fresnel, riflessione totale, specchi, fuoco dei raggi usciti
+  js/board.js              lavagna su cavalletto, foglio goniometrico, laser magnetico, pezzi di acrilico, manopola
+  js/beams.js              i raggi laser sul foglio, normali, angoli, prolungamenti
+  js/ui.js, main.js
+labs/rifrazione/           la rifrazione della luce
+  js/optics.js             mezzi (Cauchy), Snell e Fresnel, tracciamento del fascio con i riflessi parziali e la riflessione totale
+  js/scenes.js             la vasca (pareti di vetro, liquido, olio, getto della fontana di Torricelli) e il disco ottico di Hartl
+  js/rig.js                acquario su sollevatore, laser su sostegno, goniometro sul vetro, disco graduato con il mezzo cilindro, fasci e macchie di luce
+  js/ui.js, main.js
+labs/polarizzazione/       la polarizzazione della luce
+  js/optics.js             vettori di Stokes e matrici di Mueller, luce bianca per lunghezze d'onda, zucchero, Fresnel e Brewster, sforzi nel disco compresso, tabella dei colori del polariscopio
+  js/rig.js                banco ottico con montature graduate, lamine, tubo dello zucchero, schermo e fotometro; piatto girevole con la lastra e il laser; scatola luminosa, pressa e finestra dell'analizzatore (shader); fasci e frecce del campo elettrico
+  js/ui.js, main.js
 labs/interferenza/         interferenza e diffrazione
   js/wave.js               ottica ondulatoria: integrale di Collins, FFT, funzioni di Bessel, colore
   js/solver.js             dalle soluzioni alle tabelle per la GPU; foglio di luce lungo il banco
@@ -135,6 +175,23 @@ labs/interferenza/         interferenza e diffrazione
 labs/fizeau/               l'esperimento di Fizeau
   js/fizeau.js             tempo di andata e ritorno, eclissi, luce che torna (serie di Fourier), misura di c
   js/rig.js                apparato del 1849 (legno e ottone) e versione moderna (laser, telecamera, tachimetro laser), fasci con gli impulsi
+  js/ui.js, main.js
+
+Elettricità
+labs/ohm/                  le leggi di Ohm
+  js/circuit.js            alimentatore CV/CC, amperometro e voltmetro con le resistenze interne (a monte e a valle), resistori che scaldano e bruciano, lampadina a filamento (bilancio σT⁴), LED (legge del diodo), fili R = ρL/S
+  js/rig.js                alimentatore con i display, multimetri sul cavalletto, resistore assiale e LED presi con le pinze a coccodrillo, lampadina E10 nel portalampada sulla basetta con i morsetti, filo teso fra due isolatori su asta e banco a sei fili con la pinza che scorre e il metro, cavi con spine a banana, corrente, fumo
+  js/ui.js, main.js
+
+Magnetismo
+labs/campo-magnetico/      il campo magnetico
+  js/field.js              magneti (cariche magnetiche sulle facce polari), filo (Biot–Savart per segmenti), spire (integrali ellittici), campo terrestre, griglia sulla lastra, linee di campo ugualmente spaziate (Jobard–Lefer) e linee nello spazio (Runge–Kutta)
+  js/filings.js            la limatura: sparsa, poi a ogni colpo girata lungo il campo e messa in catene lungo le linee; i granelli si rizzano sopra i poli
+  js/rig.js                lastra di plexiglas su piedini o su gambe, magneti di ferrite, filo, spira e solenoide con le basette, alimentatore da 20 A, bussole, linee di campo sulla lastra e nello spazio con le frecce, teslametro con la sonda di Hall
+  js/ui.js, main.js
+labs/ampere-faraday/       le esperienze di Ampère e di Faraday
+  js/physics.js            altalena di Faraday fra i poli (F = I L × B, pendolo smorzato), strisce di Ampère (corde tese con la forza μ0 I1 I2 / 2πd, contatto)
+  js/rig.js                colonnine con i ganci, altalena d'ottone, magneti a U sul rialzo, goniometro; portale con le strisce di alluminio, mollette, ponticelli, righello, campo a metà altezza; alimentatore per correnti forti, cavi, frecce di I, B e F
   js/ui.js, main.js
 
 vendor/three/              three.js r187 (MIT), solo i moduli usati

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La polarizzazione della luce — Galileo Sim</title>
+<meta name="description" content="La polarizzazione della luce in 3D: un banco ottico con polarizzatori, lamine a mezz'onda e a quarto d'onda e un tubo di zucchero, per la legge di Malus e la luce circolare; l'angolo di Brewster con un laser e una lastra di vetro; le frange colorate di un disco compresso fra polarizzatori incrociati.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: un banco ottico con una lampada, due polarizzatori in montature graduate e uno schermo bianco con il fotometro"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Ottica · Polarizzazione</p>
+    <h1>La <em>polarizzazione</em> della luce</h1>
+    <p class="lede">La luce è un campo elettrico che oscilla di traverso al fascio. Un polarizzatore lascia passare solo l'oscillazione lungo il suo asse; lamine, zucchero, riflessi e sforzi la cambiano.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Esperienza <span>01</span></h2>
+      <div data-ctl="exp"></div>
+    </section>
+    <section class="sec" data-only="bench">
+      <h2>Il banco <span>02</span></h2>
+      <div data-ctl="src"></div>
+      <div data-ctl="useP"></div>
+      <div class="row" data-ctl="p1"></div>
+      <div data-ctl="mid"></div>
+      <div class="row" data-ctl="m"></div>
+      <div class="row" data-ctl="conc" hidden></div>
+      <div data-ctl="useA"></div>
+      <div class="row" data-ctl="an"></div>
+    </section>
+    <section class="sec" data-only="brewster" hidden>
+      <h2>La lastra <span>02</span></h2>
+      <div class="row" data-ctl="th"></div>
+      <div class="row" data-ctl="bp"></div>
+      <div data-ctl="glass"></div>
+    </section>
+    <section class="sec" data-only="photo" hidden>
+      <h2>Il polariscopio <span>02</span></h2>
+      <div class="row" data-ctl="load"></div>
+      <div class="row" data-ctl="pa"></div>
+      <div class="row" data-ctl="aa"></div>
+      <div data-ctl="circ"></div>
+      <div data-ctl="light"></div>
+    </section>
+    <section class="sec">
+      <h2>Osservare <span>03</span></h2>
+      <div data-only="bench brewster" data-ctl="efield"></div>
+      <div class="row" data-ctl="ambient"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>04</span></h2>
+      <div data-ctl="outline"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>La luce come vettore di Stokes.</b> Lo stato della luce è descritto da quattro numeri: l'intensità, quanto è polarizzata in verticale od orizzontale, a +45° o a −45°, in modo circolare. Ogni elemento è una matrice di Mueller che li trasforma. I polaroid lasciano passare l'86 % della luce lungo l'asse e lo 0,06 % di quella perpendicolare. Gli angoli si contano dalla verticale, in senso orario per chi guarda verso la sorgente.</p>
+      <p><b>La luce bianca.</b> La lampada alogena (3100 K) si calcola lunghezza d'onda per lunghezza d'onda, da 400 a 700 nm, e si somma con le funzioni colorimetriche dell'occhio: per questo lamine e zucchero, che agiscono diversamente sui colori, colorano lo schermo. Le lamine sono tagliate per il laser rosso (650 nm): il loro ritardo va come 1/λ. Il saccarosio ruota il piano di 66,5° per decimetro e per g/mL a 589 nm, e la rotazione cresce come 1/λ².</p>
+      <p><b>Brewster.</b> La riflettività del vetro viene dalle formule di Fresnel, separatamente per la luce polarizzata perpendicolare al piano d'incidenza (s) e parallela (p). Per la p si annulla quando tan θ = n. Il laser emette un milliwatt, polarizzato al 99 %.</p>
+      <p><b>La fotoelasticità.</b> Il disco di policarbonato (⌀ 6 cm, spesso 6 mm) compresso lungo un diametro ha un campo di sforzi in forma chiusa. Sotto sforzo il materiale diventa birifrangente: il ritardo è 2π (σ1 − σ2) t / fσ, con la costante di frangia fσ = 7 kN/m a 550 nm. Quello che si vede attraverso l'analizzatore è calcolato punto per punto, per il raggio che dall'occhio arriva al disco.</p>
+      <p><b>Il campo elettrico.</b> Le frecce mostrano il campo lungo il fascio con un'onda di comodo, lunga 8 cm e lenta mezzo ciclo al secondo: la luce vera ha lunghezze d'onda di mezzo micrometro e oscilla milioni di miliardi di volte al secondo. Nella luce non polarizzata la direzione cambia a caso.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>← →</b> angolo o carico · <b>A</b> annota · <b>P</b> pausa</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Le misure">
+  <div class="bar top"><span><b id="live-title">Il banco ottico</b></span><span class="status" id="status">–</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">—</span></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <canvas id="schema" width="768" height="380" aria-label="Lo schema dell'esperienza: la polarizzazione dopo ogni elemento, i raggi, i colori delle frange"></canvas>
+  <canvas id="plot" width="768" height="260" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="btn small" id="pause" title="Ferma il tempo e riprendi (P)">Pausa</button>
+      <button class="btn small" id="note" title="Annota la misura (A)">Annota</button>
+      <button class="btn small" id="clear" title="Cancella i punti annotati">Cancella</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Allineo i polarizzatori…<small>Galileo Sim · Ottica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

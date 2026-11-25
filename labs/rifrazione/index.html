@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La rifrazione della luce — Galileo Sim</title>
+<meta name="description" content="La rifrazione della luce in 3D: un laser in una vasca d'acqua, dall'alto e dal fianco, la riflessione totale, la fontana luminosa di Colladon, e il disco ottico di Hartl con mezzi cilindri d'acqua, plexiglas, vetro e zirconia. Legge di Snell, angolo limite, fattori di Fresnel, dispersione.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: un acquario d'acqua su un sollevatore e un laser che entra nell'acqua; il fascio rosso si piega alla superficie"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Ottica · Rifrazione</p>
+    <h1>La <em>rifrazione</em> della luce</h1>
+    <p class="lede">Passando dall'aria all'acqua, al vetro, alla plastica, un fascio di luce cambia direzione. Uscendo verso un mezzo meno denso, oltre un certo angolo non esce più: la superficie lo riflette tutto.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Apparato <span>01</span></h2>
+      <div data-ctl="app"></div>
+    </section>
+    <section class="sec">
+      <h2>Il laser <span>02</span></h2>
+      <div data-ctl="color"></div>
+      <div class="only-tank"><div data-ctl="mode"></div></div>
+      <div class="only-disc" hidden><div data-ctl="side"></div></div>
+      <div class="row" data-ctl="ang"></div>
+    </section>
+    <section class="sec">
+      <h2>Materiali <span>03</span></h2>
+      <div class="only-tank">
+        <div data-ctl="liquid"></div>
+        <div class="row" data-ctl="level"></div>
+        <div data-ctl="oil"></div>
+        <div data-ctl="milk"></div>
+        <div data-ctl="smoke"></div>
+      </div>
+      <div class="only-disc" hidden><div data-ctl="block"></div></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>04</span></h2>
+      <div class="row" data-ctl="ambient"></div>
+      <div class="only-tank"><div data-ctl="protractor"></div></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>Il fascio.</b> Il fascio del laser è seguito nel suo piano: a ogni superficie fra due mezzi si piega secondo la legge di Snell, n₁ sin θ₁ = n₂ sin θ₂, e in parte viene riflesso, nella misura data dalle formule di Fresnel per la luce non polarizzata. Anche i fasci riflessi sono seguiti, finché restano visibili. Gli indici di rifrazione dipendono un poco dal colore (formula di Cauchy, tarata sull'indice e sul numero di Abbe di ogni materiale): il viola si piega più del rosso.</p>
+      <p><b>La riflessione totale.</b> Andando da un mezzo più denso a uno meno denso il fascio si allontana dalla normale. Quando l'angolo di rifrazione arriva a 90°, l'angolo d'incidenza è l'angolo limite, sin θₗ = n₂/n₁; oltre, la luce non esce più ed è riflessa tutta. Avvicinandosi all'angolo limite la parte riflessa cresce fino al 100 %.</p>
+      <p><b>La vasca.</b> Qualche goccia di latte nell'acqua diffonde un poco di luce e rende visibile il fascio; il fumo fa lo stesso nell'aria. Dal fianco il laser attraversa la parete di vetro e arriva alla superficie dal basso. Le pareti di vetro, a facce parallele, spostano il fascio senza cambiarne la direzione. Nella fontana l'acqua esce dal foro con la velocità di Torricelli, √(2gh), e il getto, che cade lungo una parabola, guida la luce come una fibra ottica.</p>
+      <p><b>Il disco ottico.</b> Il mezzo cilindro sta al centro del disco graduato. Dalla parte curva il fascio, diretto al centro, entra perpendicolare al bordo e non si piega: arriva alla faccia piana dall'interno, e lì si legge la rifrazione verso l'aria o la riflessione totale.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><b>Trascina</b> per ruotare · <b>rotella</b> per lo zoom · <b>barra spaziatrice</b> accende il laser · <b>← →</b> angolo · <b>A</b> annota</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Le misure alla superficie">
+  <div class="bar top"><span><b>La superficie</b></span><span class="status" id="status">–</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">—</span></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <canvas id="schema" width="768" height="380" aria-label="Lo schema della superficie con gli angoli"></canvas>
+  <canvas id="plot" width="768" height="260" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="shutter-btn" id="go" title="Accende o spegne il laser (barra spaziatrice)"><i></i><span>Spegni</span></button>
+      <button class="btn small" id="note" title="Annota gli angoli per il grafico (A)">Annota</button>
+      <button class="btn small" id="clear" title="Cancella i punti annotati">Cancella</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="angles" class="on" title="L'angolo di rifrazione al variare di quello d'incidenza">angoli</button><button data-k="snell" title="sin θ₂ contro sin θ₁: una retta, se vale la legge di Snell">Snell</button><button data-k="fresnel" title="La parte di luce riflessa al variare dell'angolo">Fresnel</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Accendo il laser…<small>Galileo Sim · Ottica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

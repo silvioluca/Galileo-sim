@@ -1,7 +1,7 @@
 // rig.js — la vaschetta ondoscopica, appoggiata sul pavimento: un foglio bianco; sopra, su quattro gambe, la vasca
-// col fondo di vetro, il telaio d'alluminio e le spiagge di spugna; la lampada in alto su un braccio; il vibratore
-// (asta su elastici con motorino e punte) su un portale agganciato al telaio, oppure il carrello con la punta che
-// scorre su una rotaia; gli ostacoli (barriere, fenditure, specchio parabolico, lastra e lente di vetro). A scelta,
+// col fondo di vetro, il telaio d'alluminio e le spiagge di spugna; la lampada in alto su un braccio; il generatore
+// di vibrazioni su un sostegno accanto alla vasca, con un braccio che porta la punta, le due punte o la barra,
+// oppure il carrello con la punta che scorre su una rotaia; gli ostacoli (barriere, fenditure, specchio parabolico, lastra e lente di vetro). A scelta,
 // sotto la vasca, uno specchio a 45° che manda l'immagine su uno schermo verticale davanti.
 // L'acqua è un piano deformato nella scheda grafica dall'altezza simulata (ingrandita); il foglio e lo schermo
 // mostrano la luce della lampada dopo che l'acqua l'ha concentrata: creste chiare, valli scure, le ombre di pareti,
@@ -21,6 +21,8 @@ export const MIRROR = { c: 0.165, L: 0.38, W: 0.64 };
 // lo schermo: carta da lucido in un telaio verticale davanti alla vasca
 export const SCREEN = { z: 0.32, w: 0.84, y0: 0.02, y1: 0.41 };
 const FRAME_TOP = WATER_Y + 0.022;               // bordo superiore delle sponde
+export const GEN = { x: -0.47, z: 0 };           // il generatore di vibrazioni, sul suo sostegno a sinistra della vasca
+export const ARM_Y = WATER_Y + 0.036;            // quota del braccio che porta le punte (passa sopra la sponda)
 const cyl = (r0, r1, h, seg = 32) => new THREE.CylinderGeometry(r0, r1, h, seg);
 
 export class Rig {
@@ -38,6 +40,7 @@ export class Rig {
       wall: std({ color: '#30353d', metalness: 0.2, roughness: 0.55 }),
       rubber: std({ color: '#7a4a2a', metalness: 0, roughness: 0.8 }),
       mirrorEdge: std({ color: '#a9bdb8', metalness: 0.1, roughness: 0.15 }),
+      red: std({ color: '#c62a1e', metalness: 0.1, roughness: 0.45 }),
       glass: new THREE.MeshPhysicalMaterial({ color: '#e3eef2', metalness: 0, roughness: 0.05, transparent: true, opacity: 0.18, depthWrite: false, clearcoat: 1 }),
       plateGlass: new THREE.MeshPhysicalMaterial({ color: '#cfe3ea', metalness: 0, roughness: 0.08, transparent: true, opacity: 0.38, depthWrite: false }),
     };
@@ -66,7 +69,7 @@ export class Rig {
       uLight: { value: null }, uHalf: { value: HALF }, uRoom: { value: 0.6 }, uLamp: { value: 1 }, uMode: { value: 0 },
       uLy: { value: LAMP_Y }, uWy: { value: WATER_Y }, uGainS: { value: gainS },
       uMir: { value: new THREE.Vector4(MIRROR.c, MIRROR.L / 2, MIRROR.W / 2, 0) },
-      uDip: { value: [new THREE.Vector4(), new THREE.Vector4(), new THREE.Vector4()] }, uBarS: { value: new THREE.Vector4() }, uRail: { value: new THREE.Vector4() }, uLine: { value: new THREE.Vector4() },
+      uDip: { value: [new THREE.Vector4(), new THREE.Vector4(), new THREE.Vector4()] }, uBarS: { value: new THREE.Vector4() }, uArm: { value: new THREE.Vector4() }, uRail: { value: new THREE.Vector4() }, uLine: { value: new THREE.Vector4() },
       uPaper: { value: new THREE.Color('#f5f2ea') }, uFrame: { value: HALF + 0.02 },
     };
     const make = (kind, color) => new THREE.ShaderMaterial({
@@ -75,7 +78,7 @@ export class Rig {
       vertexShader: 'varying vec3 vW; void main() { vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
       fragmentShader: `
         uniform sampler2D uLight; uniform float uKind, uHalf, uRoom, uLamp, uMode, uFrame, uLy, uWy, uGainS;
-        uniform vec4 uDip[3]; uniform vec4 uBarS, uRail, uLine, uMir; uniform vec3 uPaper;
+        uniform vec4 uDip[3]; uniform vec4 uBarS, uArm, uRail, uLine, uMir; uniform vec3 uPaper;
         varying vec3 vW;
         // il raggio dalla lampada a p passa per lo specchio? (piano y + z = c, centrato in (0, c, 0))
         float onMirror(vec3 p) {
@@ -98,7 +101,8 @@ export class Rig {
           float I = uMode < 0.5 ? (uKind > 0.5 ? L.a : L.r) * 0.82 : 0.06 + 1.05 * L.g;
           I *= 1.0 - L.b;                                            // le pareti fanno ombra
           for (int i = 0; i < 3; i++) if (uDip[i].w > 0.5) I *= smoothstep(uDip[i].z * 0.75, uDip[i].z * 1.25, length(tp - uDip[i].xy));
-          if (uBarS.w > 0.5) I *= 1.0 - (1.0 - smoothstep(0.0045, 0.0075, abs(tp.x - uBarS.x))) * step(uBarS.y, tp.y) * step(tp.y, uBarS.z) * 0.9;
+          if (uBarS.w > 0.0) I *= 1.0 - (1.0 - smoothstep(uBarS.w * 0.6, uBarS.w, abs(tp.x - uBarS.x))) * step(uBarS.y, tp.y) * step(tp.y, uBarS.z) * 0.9;   // w: mezza larghezza
+          if (uArm.w > 0.5) I *= 1.0 - (1.0 - smoothstep(0.0018, 0.0034, abs(tp.y - uArm.z))) * step(uArm.x, tp.x) * step(tp.x, uArm.y) * 0.85;
           if (uRail.w > 0.5) I *= 1.0 - (1.0 - smoothstep(0.003, 0.006, abs(tp.y - uRail.y))) * 0.85;
           float direct = 1.0 - smoothstep(0.0, 0.4, length(tp)) * 0.35;  // la lampada illumina meno ai bordi
           float lamp = uLamp * lit * direct * (ins * I + onFrame * 0.05 + (1.0 - ins - onFrame) * 0.95);
@@ -179,44 +183,79 @@ export class Rig {
   }
   setLamp(on) { this.bulbMat.emissiveIntensity = on ? 2.4 : 0; this.lampLight.intensity = on ? 3 : 0; this.paperU.uLamp.value = on ? 1 : 0; }
 
-  // ───────────────────────────── il vibratore ─────────────────────────────
+  // ───────────────────────────── il generatore di vibrazioni ─────────────────────────────
+  // A sinistra della vasca, su un sostegno: il cilindro nero con la fascia gialla, l'albero che sale e scende e,
+  // fissato all'albero, un braccio orizzontale che arriva sopra l'acqua con la punta, le due punte o la barra.
   _buildVibrator() {
     const M = this.M, g = new THREE.Group(); this.group.add(g); this.vibG = g;
-    const ytop = WATER_Y + 0.15, zp = HALF + 0.01;
-    // portale: due colonnine su morsetti che scorrono sulle sponde davanti e dietro, e una traversa
-    for (const s of [-1, 1]) {
-      this._mesh(new RoundedBoxGeometry(0.03, 0.024, 0.034, 2, 0.004).translate(0, FRAME_TOP + 0.008, s * zp), M.boss, g);
-      this._mesh(cyl(0.006, 0.006, ytop - FRAME_TOP, 16).translate(0, (ytop + FRAME_TOP) / 2, s * zp), M.chrome, g);
+    const { x: gx, z: gz } = GEN, bodyTop = ARM_Y - 0.014, bodyBot = bodyTop - 0.095, R = 0.045;
+    const blue = new THREE.MeshStandardMaterial({ color: '#5b7fa3', metalness: 0.35, roughness: 0.58 });
+    const yellow = new THREE.MeshStandardMaterial({ color: '#e0b22c', metalness: 0.15, roughness: 0.42 });
+    const shell = new THREE.MeshStandardMaterial({ color: '#17181b', metalness: 0.25, roughness: 0.38 });
+    // sostegno: base pesante verniciata, asta, manicotto sotto il generatore
+    this._mesh(new RoundedBoxGeometry(0.15, 0.026, 0.22, 3, 0.008).translate(gx, 0.013, gz), blue, g);
+    this._mesh(new RoundedBoxGeometry(0.04, 0.03, 0.04, 2, 0.006).translate(gx, 0.041, gz), blue, g);
+    this._mesh(cyl(0.0065, 0.0065, bodyBot - 0.05, 20).translate(gx, (bodyBot + 0.05) / 2, gz), M.chrome, g);
+    this._mesh(cyl(0.012, 0.014, 0.022, 28).translate(gx, bodyBot - 0.009, gz), shell, g);
+    // il corpo: nero sotto, fascia gialla, nero sopra con lo spigolo arrotondato
+    const lathe = (pts, mat) => this._mesh(new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), 64).translate(gx, bodyBot, gz), mat, g);
+    lathe([[0.0, 0.0], [R - 0.004, 0.0], [R, 0.004], [R, 0.045]], shell);
+    lathe([[R + 0.0006, 0.045], [R + 0.0006, 0.067]], yellow);
+    lathe([[R, 0.067], [R, 0.088], [R - 0.003, 0.0935], [R - 0.008, 0.095], [0.02, 0.095], [0.02, 0.0915], [0.0, 0.0915]], shell);
+    this._mesh(cyl(0.02, 0.02, 0.002, 40).translate(gx, bodyTop - 0.0025, gz), M.rubber, g);          // membrana
+    // le due boccole, sul davanti
+    for (const [dx, mat] of [[-0.016, M.red], [0.016, M.black]]) {
+      this._mesh(cyl(0.0065, 0.0065, 0.012, 20).rotateX(Math.PI / 2).translate(gx + dx, bodyBot + 0.078, gz + R + 0.004), mat, g);
+      this._mesh(cyl(0.0022, 0.0022, 0.004, 12).rotateX(Math.PI / 2).translate(gx + dx, bodyBot + 0.078, gz + R + 0.011), M.chrome, g);
     }
-    this._mesh(cyl(0.006, 0.006, 2 * zp + 0.03, 16).rotateX(Math.PI / 2).translate(0, ytop, 0), M.chrome, g);
-    // l'asta che vibra, appesa a due elastici, con il motorino (l'eccentrico gira chiuso nella sua custodia)
-    this.bar = new THREE.Group(); g.add(this.bar);
-    this._mesh(new RoundedBoxGeometry(0.012, 0.012, 2 * HALF - 0.03, 2, 0.002), M.alu, this.bar);
-    this._mesh(cyl(0.013, 0.013, 0.035, 24).rotateZ(Math.PI / 2).translate(0, 0.018, 0.06), M.black, this.bar);
-    this.bands = [-1, 1].map((s) => { const m = this._mesh(cyl(0.0012, 0.0012, 1, 8).translate(0, 0.5, 0), M.rubber, g); m.position.z = s * 0.13; return m; });
-    // tre punte: asticella e pallina
+    // cavi: dalle boccole giù fino al pavimento e via, verso il generatore di funzioni
+    for (const [k, dx] of [[0, -0.016], [1, 0.016]]) {
+      const a = new THREE.Vector3(gx + dx, bodyBot + 0.078, gz + R + 0.012);
+      const pts = [a, a.clone().add(new THREE.Vector3(0, -0.01, 0.05)), new THREE.Vector3(gx + dx - 0.02, 0.05, gz + 0.13), new THREE.Vector3(gx - 0.08 + k * 0.02, 0.004, gz + 0.2), new THREE.Vector3(gx - 0.5, 0.004, gz + 0.36 + k * 0.03), new THREE.Vector3(gx - 1.6, 0.004, gz + 0.7 + k * 0.03)];
+      this._mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'centripetal'), 140, 0.0026, 8, false), k ? M.black : M.red, g);
+    }
+    // la parte che vibra: albero, dado, braccio, portapunte, punte o barra
+    const mv = this.mover = new THREE.Group(); g.add(mv);
+    this._mesh(cyl(0.0042, 0.0042, ARM_Y - bodyTop + 0.004, 16).translate(gx, (ARM_Y + bodyTop) / 2 - 0.002, gz), M.chrome, mv);
+    this._mesh(cyl(0.0085, 0.0085, 0.012, 6).translate(gx, ARM_Y, gz), M.boss, mv);
+    this.arm = this._mesh(cyl(0.0028, 0.0028, 1, 12).rotateZ(Math.PI / 2).translate(0.5, 0, 0), M.chrome, mv);
+    this.arm.position.set(gx, ARM_Y, gz);
+    this.holder = this._mesh(new RoundedBoxGeometry(0.016, 0.014, 0.016, 2, 0.003), M.boss, mv);
+    this.cross = this._mesh(cyl(0.0022, 0.0022, 1, 10).rotateX(Math.PI / 2), M.chrome, mv);            // traversina per due punte
+    this.stem = this._mesh(cyl(0.0028, 0.0028, 1, 10).translate(0, -0.5, 0), M.chrome, mv);           // gambo della barra
+    this.bar = this._mesh(new RoundedBoxGeometry(0.008, 0.012, 2 * HALF - 0.03, 2, 0.002), M.alu, mv);  // la barra per le onde piane
     this.dippers = [0, 1, 2].map(() => {
-      const d = new THREE.Group(); this.bar.add(d);
+      const d = new THREE.Group(); mv.add(d);
       d.rod = this._mesh(cyl(0.0012, 0.0012, 1, 8).translate(0, -0.5, 0), M.chrome, d);
       d.ball = this._mesh(new THREE.SphereGeometry(0.0042, 20, 14), M.boss, d);
       return d;
     });
   }
-  /** Vibratore: x dell'asta, modo ('point' | 'two' | 'bar' | null), posizioni z delle punte, scostamento verticale (m). */
+  /** Vibratore: x della sorgente, modo ('point' | 'two' | 'bar' | null), posizioni z delle punte, scostamento verticale (m). */
   setVibrator(x, mode, zs, dy) {
     this.vibG.visible = !!mode;
     if (!mode) return;
-    this.vibG.position.x = x;
-    const yBar = mode === 'bar' ? WATER_Y + 0.0045 : WATER_Y + 0.035;
-    this.bar.position.y = yBar + dy;
-    const ytop = WATER_Y + 0.15;
-    this.bands.forEach((b) => { b.position.y = yBar + 0.006 + dy; b.scale.y = ytop - (yBar + 0.006 + dy); });
+    this.mover.position.y = dy;
+    // il braccio va dall'albero del generatore fin sopra la sorgente
+    this.arm.scale.x = x - GEN.x;
+    this.holder.position.set(x, ARM_Y, GEN.z);
+    const pts = mode === 'bar' ? [] : zs.filter((z) => z !== undefined && z !== null);
+    const span = pts.length > 1 ? Math.max(...pts) - Math.min(...pts) : 0;
+    this.cross.visible = span > 0;
+    if (span) { this.cross.scale.z = span + 0.012; this.cross.position.set(x, ARM_Y - 0.004, (Math.max(...pts) + Math.min(...pts)) / 2); }
+    this.bar.visible = this.stem.visible = mode === 'bar';
+    if (mode === 'bar') {
+      const yBar = WATER_Y + 0.0045;
+      this.bar.position.set(x, yBar, 0);
+      this.stem.position.set(x, ARM_Y - 0.007, 0); this.stem.scale.y = ARM_Y - 0.007 - (yBar + 0.006);
+    }
     this.dippers.forEach((d, i) => {
       const z = mode === 'bar' ? null : zs[i];
       d.visible = z !== undefined && z !== null;
       if (!d.visible) return;
-      d.position.set(0, -0.006, z);
-      const drop = yBar - 0.006 - (WATER_Y + 0.0015);
+      const top = span ? ARM_Y - 0.006 : ARM_Y - 0.007;
+      d.position.set(x, top, z);
+      const drop = top - (WATER_Y + 0.0015);
       d.rod.scale.y = drop; d.ball.position.y = -drop;
     });
   }
@@ -306,11 +345,12 @@ export class Rig {
       }
     }
   }
-  /** Ombre sul foglio di punte, asta, rotaia; linea di misura (x, m) o null. */
-  setShadows(dips, bar, rail, line) {
+  /** Ombre sul foglio di punte, barra o traversina, braccio {x0, x1, z}, rotaia; linea di misura (x, m) o null. */
+  setShadows(dips, bar, rail, line, arm = null) {
     const U = this.paperU;
+    if (arm) U.uArm.value.set(arm.x0, arm.x1, arm.z, 1); else U.uArm.value.w = 0;
     U.uDip.value.forEach((v, i) => { const d = dips[i]; if (d) v.set(d[0], d[1], 0.0045, 1); else v.w = 0; });
-    if (bar) U.uBarS.value.set(bar.x, bar.z0, bar.z1, 1); else U.uBarS.value.w = 0;
+    if (bar) U.uBarS.value.set(bar.x, bar.z0, bar.z1, bar.hw || 0.0075); else U.uBarS.value.w = 0;
     if (rail) U.uRail.value.set(0, 0, 0, 1); else U.uRail.value.w = 0;
     if (line !== null) U.uLine.value.set(line, 0, 0, 1); else U.uLine.value.w = 0;
   }

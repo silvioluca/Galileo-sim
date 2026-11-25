@@ -1,0 +1,28 @@
+/* Il campo magnetico — aggiunte al foglio comune dei laboratori */
+
+[hidden] { display: none !important; }
+.sec.presets { border-top: 1px solid var(--line); margin-top: 4px; }
+.btnrow { display: flex; gap: 8px; margin: 4px 0 6px; }
+.btn.fresh.on { background: var(--accent); border-color: var(--accent); color: #fff; animation: pulse 1.2s ease-in-out infinite; }
+
+#live .status.warn { color: var(--accent-ink); }
+#live .status.warn::before { background: var(--accent); }
+#live .clockbox { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 4px 16px 10px; }
+#live .clock { font-family: var(--mono); font-size: 34px; line-height: 1; letter-spacing: -0.02em; color: var(--accent-ink); font-feature-settings: "tnum"; white-space: nowrap; }
+#live .clock small { font-size: 15px; color: var(--mute); margin: 0 4px; letter-spacing: 0; }
+#live .clock-side { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; font-family: var(--mono); font-size: 10.5px; color: var(--mute); text-align: right; padding-bottom: 2px; font-feature-settings: "tnum"; }
+#live .clock-side span:first-child { color: var(--ink-2); }
+#schema { display: block; width: 100%; height: auto; border-top: 1px solid rgba(18, 21, 26, 0.18); background: #f7f7f5; }
+#plot { display: block; width: 100%; height: auto; background: #f7f7f5; border-top: 1px solid rgba(18, 21, 26, 0.18); border-bottom: 1px solid rgba(18, 21, 26, 0.12); }
+#live .actions { display: flex; align-items: center; gap: 8px; padding: 10px 12px 6px; }
+#live .plotkind { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 12px 12px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mute); }
+#live .seg.mini { padding: 2px; border-radius: 9px; }
+#live .seg.mini button { padding: 4px 8px; font-size: 11px; border-radius: 7px; text-transform: none; letter-spacing: 0; }
+
+@media (max-width: 860px) {
+  #plot, #live .plotkind { display: none; }
+  #live .clock { font-size: 24px; }
+  #live .clock-side { display: none; }
+}
+@media (max-width: 480px) { #live #clear { display: none; } }
+@media (max-height: 820px) and (min-width: 861px) { #schema { max-height: 220px; object-fit: contain; } }

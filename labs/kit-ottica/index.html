@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il kit di ottica — Galileo Sim</title>
+<meta name="description" content="Kit di ottica da lavagna in 3D: lenti, menischi, semicilindro, lastra, prismi e specchi di acrilico su un foglio goniometrico, illuminati da un laser a uno, tre o cinque raggi. Legge di Snell, angolo limite, fuochi, deviazione minima.">
+<meta name="theme-color" content="#e6e9ee">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../vendor/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../shared/css/lab.css">
+<link rel="stylesheet" href="./css/style.css">
+<script type="importmap">
+{ "imports": { "three": "../../vendor/three/build/three.module.js", "three/addons/": "../../vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Scena 3D: una lavagna bianca su un cavalletto, con un foglio goniometrico, pezzi di acrilico e un laser a più raggi"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div id="scrim" aria-hidden="true"></div>
+
+<aside id="panel" class="glass">
+  <header class="masthead">
+    <a class="back" href="../../">← Galileo Sim</a>
+    <p class="kicker">Ottica · Raggi luminosi</p>
+    <h1>Il kit di <em>ottica</em></h1>
+    <p class="lede">Lenti, prismi e specchi di acrilico sulla lavagna magnetica, sopra un foglio con il goniometro. Un laser a più raggi rasenta la lavagna e si vede il cammino della luce: rifrazione, riflessione, fuochi.</p>
+  </header>
+  <div class="scroll">
+    <section class="sec">
+      <h2>Laser <span>01</span></h2>
+      <div class="row" data-ctl="beams"></div>
+      <div class="row" data-ctl="spacing"></div>
+      <div class="row" data-ctl="color"></div>
+      <div data-ctl="orbit"></div>
+      <div class="row" data-ctl="inc"></div>
+      <div class="row" data-ctl="phi"></div>
+      <div class="chips"><button class="btn" id="aim" title="Gira il laser verso il centro del goniometro">Punta al centro</button></div>
+    </section>
+    <section class="sec">
+      <h2>Il kit <span>02</span></h2>
+      <span class="seg-label">Lenti</span>
+      <div class="chips" id="kit-lens"></div>
+      <span class="seg-label">Blocchi e prismi</span>
+      <div class="chips" id="kit-block"></div>
+      <span class="seg-label">Specchi</span>
+      <div class="chips" id="kit-mirror"></div>
+      <div class="chips"><button class="btn ghost" id="clear-kit" title="Toglie tutti i pezzi dalla lavagna">Togli tutto</button></div>
+    </section>
+    <section class="sec">
+      <h2>Il pezzo scelto <span>03</span></h2>
+      <p class="help" id="sel-empty">Clicca un pezzo sulla lavagna per sceglierlo. Si trascina con il mouse; la manopola rossa lo fa ruotare (anche <b>Q</b> ed <b>E</b>).</p>
+      <div id="sel-box" hidden>
+        <p class="sel-name" id="sel-name"></p>
+        <div class="row" data-ctl="rot"></div>
+        <div class="chips">
+          <button class="btn" id="flip" title="Lo gira di 180°">Gira di 180°</button>
+          <button class="btn" id="center" title="Lo porta al centro del goniometro">Al centro</button>
+          <button class="btn" id="remove" title="Lo toglie dalla lavagna (Canc)">Togli</button>
+        </div>
+      </div>
+    </section>
+    <section class="sec">
+      <h2>Osservazione <span>04</span></h2>
+      <div data-ctl="marks"></div>
+      <div data-ctl="ext"></div>
+      <div data-ctl="weak"></div>
+    </section>
+    <section class="sec">
+      <h2>Vista <span>05</span></h2>
+      <div class="row" data-ctl="ambient"></div>
+      <div data-ctl="labels"></div>
+      <span class="seg-label" style="margin-top:10px">Inquadrature</span>
+      <div class="chips" id="views"></div>
+      <div class="row" data-ctl="quality"></div>
+    </section>
+    <section class="sec presets">
+      <h2>Esperimenti classici</h2>
+      <div class="chips" id="presets"></div>
+    </section>
+    <details class="about">
+      <summary>Dentro la simulazione</summary>
+      <p><b>I raggi.</b> Il laser manda uno, tre o cinque raggi paralleli che rasentano la lavagna. Ciascuno va diritto fino al primo bordo che incontra; lì si divide in un raggio rifratto, che segue la legge di Snell n₁·sin i = n₂·sin r, e in uno riflesso. Le intensità sono quelle di Fresnel per la luce non polarizzata, per questo si vedono anche i riflessi deboli. Oltre l'angolo limite la riflessione è totale. Si seguono tutti i rami finché portano almeno lo 0,6 % della luce.</p>
+      <p><b>I pezzi.</b> Sono di acrilico (PMMA), con l'indice calcolato dalla formula di Sellmeier per il colore del laser: 1,488 nel rosso, 1,493 nel verde, 1,505 nel viola. Le facce curve sono archi di cerchio veri, e per questo i raggi del bordo vanno a fuoco un po' prima di quelli vicino all'asse (aberrazione sferica). Gli specchi riflettono il 92 % della luce.</p>
+      <p><b>Le misure.</b> Gli angoli si misurano dalla normale, come sul goniometro, nel primo punto in cui il raggio centrale incontra un pezzo. Il fuoco è il punto più vicino a tutti i raggi usciti; se i raggi divergono, è il punto da cui sembrano provenire (fuoco virtuale). La focale nominale è quella parassiale della lente spessa.</p>
+    </details>
+  </div>
+</aside>
+
+<button id="panel-toggle" class="glass icon-btn" title="Mostra i controlli" aria-label="Mostra i controlli">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<div id="hint" class="glass"><span class="do">trascina pezzi e laser</span> · <b>manopola rossa</b> o <b>Q</b>/<b>E</b> per ruotare · <b>Canc</b> toglie · <b>A</b> annota · trascina la lavagna vuota per girare la vista</div>
+
+<div id="topright">
+  <span class="badge glass" title="Fotogrammi al secondo"><b id="fps">–</b> fps</span>
+  <button class="glass icon-btn" id="hide-panel" title="Nascondi i controlli (H)" aria-label="Nascondi i controlli">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+  </button>
+  <button class="glass icon-btn" id="fullscreen" title="Schermo intero (F)" aria-label="Schermo intero">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+</div>
+
+<section id="live" aria-label="Misure">
+  <div class="bar top"><span><b id="live-title">Misure</b><span class="wide" id="live-sub"></span></span><span class="status" id="status">–</span></div>
+  <div class="bar clockbox">
+    <div class="clock"><span id="clock">—</span><small id="unit"></small></div>
+    <div class="clock-side"><span id="side1"></span><span id="side2"></span></div>
+  </div>
+  <div class="bar rows" id="rows"></div>
+  <canvas id="plot" width="768" height="300" aria-label="Grafico"></canvas>
+  <div class="bar">
+    <div class="actions">
+      <button class="btn small" id="note" title="Annota i e r del raggio centrale (A)">Annota</button>
+      <button class="btn small" id="clear" title="Cancella le misure">Cancella</button>
+    </div>
+    <div class="plotkind"><span>Grafico</span><div class="seg mini" id="plot-kind"><button data-k="snell" class="on" title="sin r in funzione di sin i: rette con pendenza 1/n e n">Snell</button><button data-k="ir" title="r in funzione di i, con l'angolo limite">i e r</button><button data-k="fresnel" title="La luce riflessa in funzione dell'angolo d'incidenza">riflessa</button></div></div>
+  </div>
+</section>
+
+<div id="metrics" class="glass" aria-live="off"></div>
+<div id="boot"><p>Appendo il foglio alla lavagna…<small>Galileo Sim · Ottica</small></p></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

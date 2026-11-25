@@ -16,9 +16,9 @@ const state = {
   mode: 'string', L: 1.2, mass: 0.2, str: 'cotton', fS: 20, AS: 0.4,
   Lt: 1.0, ends: 'cc', temp: 20, fT: 150, AT: 1, particles: true, powder: true, grain: 'cork',
   look: 'eye', dstrobe: 0.4, travel: false, marks: true, sound: false,
-  slow: 1, ambient: 0.6, outline: false, labels: true, quality: 'low', plotKind: 'shape',
+  slow: 1, ambient: 1, outline: false, labels: true, quality: 'low', plotKind: 'shape',
 };
-const BASE = { mode: 'string', L: 1.2, mass: 0.2, str: 'cotton', fS: 20, AS: 0.4, Lt: 1.0, ends: 'cc', temp: 20, fT: 150, AT: 1, particles: true, powder: true, grain: 'cork', look: 'eye', dstrobe: 0.4, travel: false, marks: true, slow: 1, ambient: 0.6, plotKind: 'shape' };
+const BASE = { mode: 'string', L: 1.2, mass: 0.2, str: 'cotton', fS: 20, AS: 0.4, Lt: 1.0, ends: 'cc', temp: 20, fT: 150, AT: 1, particles: true, powder: true, grain: 'cork', look: 'eye', dstrobe: 0.4, travel: false, marks: true, slow: 1, ambient: 1, plotKind: 'shape' };
 const GEOM = new Set(['mode', 'L', 'Lt', 'ends']);
 const SPEED = new Set(['mass', 'str', 'temp']);
 

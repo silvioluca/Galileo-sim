@@ -5,7 +5,7 @@ import { Tags } from '../../../shared/js/tags.js';
 import { expandablePlot } from '../../../shared/js/plotview.js';
 import { kOf, lambdaOf, speedOf, lambdaGravity, PLATE_DEPTH, twoSources, slits, dopplerFront, dopplerBack, machAngle } from './ripple.js';
 import { RippleSim } from './tank.js';
-import { Rig, HALF, GLASS_Y, WATER_Y, LAMP_Y, PAPER_Y, LAMP_STAND, MIRROR, SCREEN } from './rig.js';
+import { Rig, HALF, GLASS_Y, WATER_Y, LAMP_Y, PAPER_Y, LAMP_STAND, MIRROR, SCREEN, GEN, ARM_Y } from './rig.js';
 import { createUI, fmt } from './ui.js';
 
 const N = 400, DX = (2 * HALF) / N, DT = (0.9 * DX) / (0.3 * Math.SQRT2);
@@ -270,7 +270,7 @@ async function boot() {
   // ───────────────────────── etichette ─────────────────────────
   const V = (...p) => new THREE.Vector3(...p);
   tags.add('Lampada', '', (o) => o.set(0, LAMP_Y + 0.07, 0));
-  tags.add('Vibratore', '', (o) => o.set(state.src === 'bar' ? X_BAR : X_SRC, WATER_Y + 0.17, -0.27), () => state.src !== 'move');
+  tags.add('Generatore di vibrazioni', '', (o) => o.set(GEN.x, ARM_Y + 0.05, GEN.z), () => state.src !== 'move');
   tags.add('Carrello', '', (o) => o.set(moveX(), WATER_Y + 0.12, 0), () => state.src === 'move');
   tags.add('Il foglio: l\'immagine delle onde', '', (o) => o.set(0, PAPER_Y, 0.36), () => !state.mirror);
   tags.add('Lo schermo: l\'immagine delle onde', '', (o) => o.set(0, SCREEN.y1 + 0.014, SCREEN.z), () => state.mirror);
@@ -314,7 +314,7 @@ async function boot() {
       case 'top': return fitPose(V(0, 2.6, 1).normalize(), paper);
       case 'paper': return state.mirror ? fitPose(V(0.08, 0.3, 1).normalize(), [...screen, V(0, WATER_Y + 0.02, -HALF)]) : fitPose(V(0.12, 0.5, 1).normalize(), [...paper, V(0, WATER_Y - 0.01, HALF + 0.02)]);
       case 'tank': return fitPose(V(0.3, 0.75, 1).normalize(), [V(-HALF, WATER_Y, -HALF), V(HALF, WATER_Y, -HALF), V(-HALF, WATER_Y, HALF), V(HALF, WATER_Y, HALF)]);
-      default: return fitPose(V(0.45, 0.42, 1).normalize(), [...paper, ...(state.mirror ? screen : []), V(LAMP_STAND.x + 0.1, 0, LAMP_STAND.z - 0.08), V(0, LAMP_Y + 0.18, 0), V(LAMP_STAND.x, LAMP_Y + 0.18, LAMP_STAND.z), V(-0.3, WATER_Y + 0.15, 0.27)]);
+      default: return fitPose(V(0.45, 0.42, 1).normalize(), [...paper, ...(state.mirror ? screen : []), V(LAMP_STAND.x + 0.1, 0, LAMP_STAND.z - 0.08), V(0, LAMP_Y + 0.18, 0), V(LAMP_STAND.x, LAMP_Y + 0.18, LAMP_STAND.z), V(GEN.x - 0.08, 0, GEN.z + 0.11), V(GEN.x - 0.05, ARM_Y + 0.02, GEN.z)]);
     }
   }
   function setView(id, instant = false) {
@@ -362,8 +362,11 @@ async function boot() {
     rig.setVibrator(state.src === 'bar' ? X_BAR : X_SRC, vibMode, zs, dy);
     rig.setRail(state.src === 'move', moveX(), dy);
     const dips = state.src === 'bar' ? [] : S.pts.map((p) => [p[0], p[1]]);
-    rig.setShadows(dips, state.src === 'move' ? null : { x: state.src === 'bar' ? X_BAR : X_SRC, z0: -BAR_Z, z1: BAR_Z }, state.src === 'move', state.line ? state.xl / 100 : null);
-    stage.outlined = state.outline ? [state.src === 'move' ? rig.cart : rig.bar] : [];
+    // ombre sul foglio: la barra che pesca, o la traversina delle due punte, e il braccio del generatore
+    const xs = state.src === 'bar' ? X_BAR : X_SRC, hw = state.d / 200 + 0.006;
+    const barSh = state.src === 'bar' ? { x: X_BAR, z0: -BAR_Z, z1: BAR_Z } : state.src === 'two' ? { x: X_SRC, z0: -hw, z1: hw, hw: 0.003 } : null;
+    rig.setShadows(dips, barSh, state.src === 'move', state.line ? state.xl / 100 : null, state.src === 'move' ? null : { x0: -HALF - 0.05, x1: xs, z: GEN.z });
+    stage.outlined = state.outline ? [state.src === 'move' ? rig.cart : rig.mover] : [];
   }
 
   function hud(now) {
